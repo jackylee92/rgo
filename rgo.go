@@ -1,4 +1,4 @@
-package rgo
+package github.com/jackylee92/rgo
 
 import "fmt"
 
