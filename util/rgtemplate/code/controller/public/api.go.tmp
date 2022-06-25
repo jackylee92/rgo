@@ -1,0 +1,13 @@
+package public
+
+import (
+	"rgo.com/bootstrap/core/rgrequest"
+
+	"github.com/gin-gonic/gin"
+)
+
+func IndexHandle(ctx *gin.Context) {
+    this := rgrequest.Get(ctx)
+    data := "Hello RGO~"
+    this.Response.ReturnSuccess(data)
+}

@@ -1,0 +1,18 @@
+package router
+
+import (
+	"rgo.com/app/rgtemplate/controller/api"
+	"rgo.com/bootstrap/core/rgrouter"
+
+	"github.com/gin-gonic/gin"
+)
+
+func GetRouter() *gin.Engine {
+	registerValidation()
+	router := rgrouter.NewRouter()
+	router.POST("", api.AddHandle)
+	return router
+}
+
+func registerValidation() {
+}

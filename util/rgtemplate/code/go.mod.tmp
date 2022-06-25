@@ -1,0 +1,19 @@
+module rgo.com/app/rgtemplate
+
+go 1.16
+
+replace (
+	rgo.com/bootstrap => ../../bootstrap
+	rgo.com/util => ../../util
+	rgo.com/library => ../../library
+)
+
+require (
+	github.com/Valiben/gin_unit_test v0.0.0-20181205064931-674aee46d090
+	github.com/gin-gonic/gin v1.7.7
+	github.com/go-playground/universal-translator v0.18.0
+	github.com/go-playground/validator/v10 v10.10.1
+	github.com/streadway/amqp v1.0.0 // indirect
+	rgo.com/bootstrap v0.0.0-00010101000000-000000000000
+	rgo.com/util v0.0.0-00010101000000-000000000000
+)
