@@ -1,0 +1,11 @@
+package message
+
+import "rgo.com/bootstrap/core/rgglobal/rgmessage"
+
+var data map[int64]string = map[int64]string{
+	-1000: "自定义失败文案",
+}
+
+func init() {
+	rgmessage.InitAppMsg(data)
+}

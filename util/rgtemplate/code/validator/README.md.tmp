@@ -1,0 +1,110 @@
+# 子项目验证层
+
+> validate:
+> https://github.com/go-playground/validator/blob/master/README.md#toc1
+
+## 步骤
+
+1. server中创建入参结构体
+
+   app/demo/service/user/add.go
+
+   ```go
+   type DetailUserParam struct {
+       Id   int64  `json:"id" binding:"required,min=0,max=35"`
+       Name string `json:"name" binding:"required,name_prefix"`
+   }
+   ```
+
+   ``name_prefix``为自定义验证规则
+
+2. 创建验证函数
+
+   app/demo/validator/api/add.go
+
+   ```go
+   func DetailUserCheckParam(c *gin.Context) {
+       this := rgrequest.Get(c) // 获取请求的全局对象
+       var param user.DetailUserParam // 定义接受参数的结构体变量
+       err := c.ShouldBind(&param) // 绑定+验证
+       if err != nil { // 验证失败
+           errs := err.(validator.ValidationErrors) // 解析所有验证的错误
+           errList := make([]string, 0, len(errs)) // 创建验证错误集合
+           for _, e := range errs { // 循环所有的验证错误
+               errList = append(errList, e.Translate(rgrouter.Trans)) //将验证错误转为中文，并追加到错误集合中
+           }
+           this.Response.ReturnError(-500, nil, strings.Join(errList, ",")) // 返回错误： code码，返回参数为nil，message为错误集合转string
+           return // 结束
+       }
+   
+       this.Param = param // 没有错误将参数复制给请求的全局对象
+       c.Next() // 继续向下执行
+   }
+   ```
+
+3. 如果有自定义规则，需要创建自定义验证函数
+
+   ```go
+   func DetailUserNamePrefix() func(fl validator.FieldLevel) bool { // 函数出参固定
+       return func(fl validator.FieldLevel) bool { // 返回方法体
+           if data, ok := fl.Field().Interface().(string); ok { // 获取字段值
+               if strings.Contains(data, "demo_") { // 获取到自定义匹配逻辑
+                   return true // 返回true
+               }
+           }
+           return false // 返回false
+       }
+   }
+   ```
+
+4. 自定义规则的错误提示
+
+   ```go
+   func DetailUserNamePrefixMessage() rgrouter.MessageTrans { // 返回方法值格式固定
+       return rgrouter.MessageTrans{
+           // <LiJunDong : 2022-03-29 23:46:52> --- 自定义错误文案
+           RegisterFn: func(ut ut.Translator) error {
+               return ut.Add("name_prefix", "{0}必须以demo_开始", true)
+           },
+           // <LiJunDong : 2022-03-29 23:46:58> --- 自定义字段名称
+           TranslationFn: func(ut ut.Translator, fe validator.FieldError) string {
+               // 不想转为中文，直接这样写，返回tag中字段名
+               // t, _ := ut.T("name_prefix", lable) // fe.Field() 字段名
+             	// 将使用这个规则的各个字段转为中文
+               lable := fe.Field() // 默认为Tag中字段名
+               switch fe.Field() {
+               case "Name":
+                   lable = "名称"
+               }
+               t, _ := ut.T("name_prefix", lable)
+               return t
+           },
+       }
+   }
+   ```
+
+5. 路由中添加验证
+
+   app/demo/router/router.go
+
+   引入包
+
+   ```go
+   validatorApi "rgo-framework/app/demo/validator/api"
+   ```
+
+   添加到路由中
+
+   ```
+   router.POST("detail", validatorApi.DetailUserCheckParam, api.DetailHandle) // 写在业务函数前面
+   ```
+
+   将自定义验证和语言注册到验证器中
+
+   ```go
+   rgrouter.RegisterFunc("name_prefix", validatorApi.DetailUserNamePrefix()) // 注册验证方法
+   rgrouter.RegisterMessage("name_prefix", validatorApi.DetailUserNamePrefixMessage()) // 注册错误语言
+   ```
+
+   
+
