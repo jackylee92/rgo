@@ -3,13 +3,13 @@ package jeager
 import (
 	"bytes"
 	"encoding/json"
-	"rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"strconv"
 	"time"
 
-	"rgo/core/rgjaerger"
-	"rgo/core/rglog"
-	"rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/core/rgjaerger"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgrequest"
 
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go/ext"

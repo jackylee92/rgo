@@ -3,10 +3,10 @@ package rgcache
 import (
 	"github.com/coocood/freecache"
 	"github.com/go-redis/redis"
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rglog"
-	"rgo/core/rgmodel/rgredis"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgmodel/rgredis"
 )
 
 /*

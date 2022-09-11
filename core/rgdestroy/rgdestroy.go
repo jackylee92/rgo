@@ -5,8 +5,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rglog"
 )
 
 func Listen() {

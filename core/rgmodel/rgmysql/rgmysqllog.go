@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rglog"
 
 	"gorm.io/gorm/logger"
 )

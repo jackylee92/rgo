@@ -2,14 +2,11 @@ package rgmsg
 
 import (
 	"errors"
-	"github/tidwall/gjson"
+	_ "github.com/jackylee92/rgo"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/library/rgwechat"
 	"gopkg.in/gomail.v2"
-	_ "rgo"
-	"rgo/core/rgconfig"
-	"rgo/core/rgjson"
-	"rgo/core/rgrequest"
-	"rgo/util/rghttp"
-	"rgo/util/rgtime"
 )
 
 /*
@@ -134,36 +131,18 @@ func (c *Client) check() (err error) {
 // @Author  : LiJunDong
 // @Time    : 2022-05-27
 func (c *Client) sendWechat() (err error) {
-	content := "# <font color=\"warning\">" + c.Title + "</font>\n"
-	content += "<font color=\"comment\" size=\"10\">at " + rgtime.NowDateTime() + "</font>\n"
-	content += c.WechatContent + "\n"
-	if len(c.WechatData) != 0 {
-		for _, value := range c.WechatData{
-			content += "> <font color=\"comment\" size=\"11\">" + value + "</font> \n"
-		}
+	client := rgwechat.WeClient{
+		This:    c.This,
+		Content: c.WechatData,
+		To:      wechatTo,
+		Title:   c.WechatContent,
+		Level: rgwechat.Info,
 	}
-	param := map[string]interface{}{
-		"msgtype": "markdown",
-		"markdown": map[string]string{
-			"content": content,
-		},
+	res, err := client.Send()
+	if !res || err != nil {
+		return errors.New("发送失败")
 	}
-	paramJson, _ := rgjson.Marshel(param)
-	httpClient := rghttp.Client{
-		Url:    wechatTo,
-		Method: "POST",
-		Header: c.getWechatHeader(),
-		Param:  paramJson,
-		This: c.This,
-	}
-	data, err := httpClient.GetApi()
-	if err != nil {
-		return err
-	}
-	if gjson.Get(data, "code").Int() != 0 {
-		return errors.New(gjson.Get(data, "errmsg").String())
-	}
-	return err
+	return nil
 }
 
 // sendEmail 发送邮件

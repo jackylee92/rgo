@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgglobal/rgerror"
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
+	"github.com/jackylee92/rgo/core/rglog"
 
 	logformat "github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
@@ -103,6 +103,10 @@ func connect() {
 		if err != nil {
 			panic("数据库【" + name + "】链接失败")
 		}
+		newDB, err := db.DB()
+		newDB.SetMaxOpenConns(int(rgconfig.GetInt(rgconst.ConfigMysqlMaxOpenConns)))
+		newDB.SetMaxIdleConns(int(rgconfig.GetInt(rgconst.ConfigMysqlMaxIdleConns)))
+		newDB.SetConnMaxLifetime(time.Duration(rgconfig.GetInt(rgconst.ConfigMysqlMaxLifetime)) * time.Second)
 		connectPool[name] = db
 		connectNames = append(connectNames, "【"+name+"】")
 	}

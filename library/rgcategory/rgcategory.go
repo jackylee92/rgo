@@ -2,10 +2,10 @@ package rgcategory
 
 import (
 	"errors"
-	"rgo/core/rgconfig"
-	"rgo/core/rgjson"
-	"rgo/core/rgrequest"
-	"rgo/util/rghttp"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgjson"
+	"github.com/jackylee92/rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/util/rghttp"
 )
 
 const (

@@ -3,7 +3,7 @@ package rgarr
 import (
 	"encoding/json"
 	"fmt"
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rglog"
 	"sort"
 	"strconv"
 )

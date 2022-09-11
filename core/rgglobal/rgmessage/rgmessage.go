@@ -1,9 +1,9 @@
 package rgmessage
 
 import (
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgglobal/rgerror"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
 )
 
 var rgMsg map[int64]map[string]string = map[int64]map[string]string{

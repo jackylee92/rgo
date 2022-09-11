@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgglobal/rgerror"
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
+	"github.com/jackylee92/rgo/core/rglog"
 
 	"github.com/go-redis/redis"
 )
@@ -631,19 +631,34 @@ func Zscore(key string, member string) (float64, error) {
 	return client.ZScore(key, member).Result()
 }
 
-
-func Zadd(key string, score float64, member string) (int64,error) {
-	client,err := GetClient()
+func Zadd(key string, score float64, member string) (int64, error) {
+	client, err := GetClient()
 	if err != nil {
 		return 0, errors.New(rgerror.ErrorRedisClientNil)
 	}
-	return client.ZAdd(key,redis.Z{Member: member,Score: score}).Result()
+	return client.ZAdd(key, redis.Z{Member: member, Score: score}).Result()
 }
 
 func SetPersist(key string) (bool, error) {
-	client,err := GetClient()
+	client, err := GetClient()
 	if err != nil {
 		return false, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.Persist(key).Result()
+}
+
+func HKeys(key string) ([]string, error) {
+	var res []string
+	client, err := GetClient()
+	if err != nil {
+		return res, errors.New(rgerror.ErrorRedisClientNil)
+	}
+	return client.HKeys(key).Result()
+}
+func SIsMember(key string, args interface{}) (bool, error) {
+	client, err := GetClient()
+	if err != nil {
+		return false, errors.New(rgerror.ErrorRedisClientNil)
+	}
+	return client.SIsMember(key, args).Result()
 }

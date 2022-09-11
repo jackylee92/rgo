@@ -4,7 +4,7 @@ import (
 	"net"
 	"os"
 
-	"rgo/core/rgglobal/rgerror"
+	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
 )
 
 var BasePath string

@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal"
-	"rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -81,8 +81,10 @@ func (c *Client) Info(param string) {
 		}
 		output := zerolog.ConsoleWriter{
 			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
 			NoColor:    true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -123,8 +125,10 @@ func (c *Client) Error(param string) {
 		}
 		output := zerolog.ConsoleWriter{
 			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
 			NoColor:    true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -165,8 +169,10 @@ func (c *Client) Debug(param string) {
 		}
 		output := zerolog.ConsoleWriter{
 			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
 			NoColor:    true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -207,8 +213,10 @@ func (c *Client) Warn(param string) {
 		}
 		output := zerolog.ConsoleWriter{
 			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
 			NoColor:    true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -249,8 +257,10 @@ func (c *Client) Fatal(param string) {
 		}
 		output := zerolog.ConsoleWriter{
 			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
 			NoColor:    true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -339,8 +349,10 @@ func SystemInfo(param string) {
 	}
 	output := zerolog.ConsoleWriter{
 		Out:        f,
-		TimeFormat: rgconst.GoTimeFormat,
 		NoColor:    true,
+		FormatTimestamp: func(i interface{}) string {
+			return time.Now().Local().Format(rgconst.GoTimeFormat)
+		},
 		FormatLevel: func(i interface{}) string {
 			return "| SYSTEMINFO|"
 		},
@@ -379,8 +391,10 @@ func SystemError(param string) {
 	}
 	output := zerolog.ConsoleWriter{
 		Out:        f,
-		TimeFormat: rgconst.GoTimeFormat,
 		NoColor:    true,
+		FormatTimestamp: func(i interface{}) string {
+			return time.Now().Local().Format(rgconst.GoTimeFormat)
+		},
 		FormatLevel: func(i interface{}) string {
 			return "| SYSTEMERROR|"
 		},
@@ -419,8 +433,10 @@ func RequestLog(uniqId string, typ string, param string) {
 	}
 	output := zerolog.ConsoleWriter{
 		Out:        f,
-		TimeFormat: rgconst.GoTimeFormat,
 		NoColor:    true,
+		FormatTimestamp: func(i interface{}) string {
+			return time.Now().Local().Format(rgconst.GoTimeFormat)
+		},
 		FormatLevel: func(i interface{}) string {
 			return fmt.Sprintf("|%s|", typ)
 		},
@@ -463,6 +479,9 @@ func localDebug(typ string, uniqId string, param string) {
 		Out:        os.Stdout,
 		TimeFormat: rgconst.GoTimeFormat,
 		NoColor:    true,
+		FormatTimestamp: func(i interface{}) string {
+			return time.Now().Local().Format(rgconst.GoTimeFormat)
+		},
 		FormatLevel: func(i interface{}) string {
 			return fmt.Sprintf("|%s|", typ)
 		},

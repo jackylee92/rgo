@@ -2,9 +2,9 @@ package rgcache
 
 import (
 	"errors"
-	"rgo/core/rgjson"
-	"rgo/core/rgmodel/rgredis"
-	"rgo/util/rgarr"
+	"github.com/jackylee92/rgo/core/rgjson"
+	"github.com/jackylee92/rgo/core/rgmodel/rgredis"
+	"github.com/jackylee92/rgo/util/rgarr"
 )
 
 var errorNoStart = errors.New("本地缓存freecache未启动")

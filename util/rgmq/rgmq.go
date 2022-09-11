@@ -4,11 +4,11 @@ import (
 	"errors"
 	"github.com/rs/xid"
 	"github.com/streadway/amqp"
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal"
-	"rgo/core/rgjson"
-	"rgo/core/rglog"
-	"rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal"
+	"github.com/jackylee92/rgo/core/rgjson"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgrequest"
 	"time"
 )
 
@@ -228,6 +228,11 @@ func (c *Client) Listen(pf func(delivery amqp.Delivery) bool) (err error) {
 	}
 	if _, err := ch.QueueDeclare(c.config.Queue, true, false, false, false, nil); err != nil {
 		return errors.New("消费者创建Queue声明失败|" + err.Error())
+	}
+	err = ch.Qos(2, 0, false)
+	if err != nil {
+		rglog.SystemError("消费者设置预加载条数失败" + err.Error())
+		return
 	}
 	autoAck := c.config.AutoAck
 	consumeId := rgglobal.AppName

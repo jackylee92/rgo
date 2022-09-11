@@ -1,22 +1,22 @@
 package rgo
 
 import (
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgconfig/rgapollo"
+	"github.com/jackylee92/rgo/core/rgconfig/rglocal"
+	"github.com/jackylee92/rgo/core/rgdestroy"
+	"github.com/jackylee92/rgo/core/rgglobal"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgjaerger"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgmodel/rgmysql"
+	"github.com/jackylee92/rgo/core/rgmodel/rgredis"
+	"github.com/jackylee92/rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/core/rgrequired"
+	_ "github.com/jackylee92/rgo/core/rgrequired"
+	"github.com/jackylee92/rgo/core/rgstarthook"
 	"github.com/gin-gonic/gin"
 	"log"
-	"rgo/core/rgconfig"
-	"rgo/core/rgconfig/rgapollo"
-	"rgo/core/rgconfig/rglocal"
-	"rgo/core/rgdestroy"
-	"rgo/core/rgglobal"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgjaerger"
-	"rgo/core/rglog"
-	"rgo/core/rgmodel/rgmysql"
-	"rgo/core/rgmodel/rgredis"
-	"rgo/core/rgrequest"
-	"rgo/core/rgrequired"
-	_ "rgo/core/rgrequired"
-	"rgo/core/rgstarthook"
 )
 
 /*
@@ -53,10 +53,9 @@ func init() {
 	rgstarthook.Run()
 	//  <LiJunDong : 2022-06-21 21:21:04> --- 启动一个服务自身的容器
 	serverContainer()
-	startMsg := "启动项【bootstart-init】:成功"
+	startMsg := "启动项【rgo-init】:成功"
 	rglog.SystemInfo(startMsg)
 	log.Println("|SystemInfo| " + startMsg+ "| UniqId:终端")
-
 }
 
 var This *rgrequest.Client

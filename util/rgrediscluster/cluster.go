@@ -7,12 +7,13 @@ import (
 	"github.com/go-redis/redis/v8"
 	"time"
 )
-
+//Deprecated
+//请使用core/rgmodel/rgcluster
 var (
 	Cluster *redis.ClusterClient
 	ClusterCtx = context.Background()
 )
-
+//Deprecated
 type ClusterConfig struct{
 	Host []string `yaml:"host"`
 	Persistent bool `yaml:"persistent"`
@@ -24,11 +25,8 @@ type ClusterConfig struct{
 	IdleTimeout time.Duration `yaml:"idleTimeout"`
 }
 
-
-func Setup() {
-
-
-
+//Deprecated
+func Setup(config ClusterConfig) {
 
 	Cluster = redis.NewClusterClient(&redis.ClusterOptions{
 
@@ -40,11 +38,11 @@ func Setup() {
 
 		//Addrs: setting.Conf.Cluster.Host,
 
-		Addrs: []string{"192.168.1.85:6379","192.168.1.85:6380","192.168.1.86:6379","192.168.1.86:6380","192.168.1.87:6379","192.168.1.87:6380"},
+		Addrs: config.Host,
 
 
 		//Password: setting.Conf.Cluster.Auth,
-		Password: "h0ScbctSdA",
+		Password: config.Auth,
 
 
 		MaxRedirects: 8, // 当遇到网络错误或者MOVED/ASK重定向命令时，最多重试几次，默认8
@@ -64,7 +62,7 @@ func Setup() {
 		//每一个redis.Client的连接池容量及闲置连接数量，而不是clusterClient总体的连接池大小。实际上没有总的连接池
 		//而是由各个redis.Client自行去实现和维护各自的连接池。
 		//PoolSize:     setting.Conf.Cluster.PoolSize, // 连接池最大socket连接数，默认为5倍CPU数， 5 * runtime.NumCPU
-		PoolSize:    150, // 连接池最大socket连接数，默认为5倍CPU数， 5 * runtime.NumCPU
+		PoolSize:    config.PoolSize, // 连接池最大socket连接数，默认为5倍CPU数， 5 * runtime.NumCPU
 		MinIdleConns: 10,                                 //在启动阶段创建指定数量的Idle连接，并长期维持idle状态的连接数不少于指定数量；。
 
 		//命令执行失败时的重试策略
@@ -76,8 +74,8 @@ func Setup() {
 		DialTimeout:  5 * time.Second,                                     //连接建立超时时间，默认5秒。
 		//ReadTimeout:  setting.Conf.Cluster.ReadTimeout * time.Second, //读超时，默认3秒， -1表示取消读超时
 		//WriteTimeout: setting.Conf.Cluster.TimeOut * time.Second,     //写超时，默认等于读超时，-1表示取消读超时
-		ReadTimeout: 2 * time.Second, //读超时，默认3秒， -1表示取消读超时
-		WriteTimeout: 2 * time.Second,     //写超时，默认等于读超时，-1表示取消读超时
+		ReadTimeout: config.ReadTimeout * time.Second, //读超时，默认3秒， -1表示取消读超时
+		WriteTimeout: config.TimeOut * time.Second,     //写超时，默认等于读超时，-1表示取消读超时
 		PoolTimeout:  4 * time.Second,                                     //当所有连接都处在繁忙状态时，客户端等待可用连接的最大等待时长，默认为读超时+1秒。
 
 		//闲置连接检查包括IdleTimeout，MaxConnAge

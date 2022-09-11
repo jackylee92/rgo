@@ -4,18 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/jackylee92/rgo"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"rgo"
 	"strconv"
 	"strings"
 	"time"
 
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgrequest"
 )
 
 type Client struct {
@@ -137,7 +137,7 @@ func (c *Client) getClientHeader() (req *http.Request, err error) {
 	if c.This != nil {
 		req.Header.Set(headerUniqIDKey, c.This.UniqId)
 	}else{
-		req.Header.Set(headerUniqIDKey, bootstrap.This.UniqId)
+		req.Header.Set(headerUniqIDKey, rgo.This.UniqId)
 	}
 	if len(c.Header) != 0 {
 		for headerTitle, headerValue := range c.Header {
@@ -179,7 +179,7 @@ func (c *Client) GetApi() (data string, err error) {
 		if c.This != nil {
 			c.This.Log.Info("HTTP请求开始|" + string(logStr))
 		}else{
-			bootstrap.This.Log.Info("HTTP请求开始|" + string(logStr))
+			rgo.This.Log.Info("HTTP请求开始|" + string(logStr))
 		}
 	}
 	startTimeInt := time.Now()
@@ -200,7 +200,7 @@ func (c *Client) GetApi() (data string, err error) {
 		if c.This != nil {
 			c.This.Log.Info("HTTP请求结束|" + string(logStr))
 		}else{
-			bootstrap.This.Log.Info("HTTP请求结束|" + string(logStr))
+			rgo.This.Log.Info("HTTP请求结束|" + string(logStr))
 		}
 	}
 	if resp.StatusCode != 200 {

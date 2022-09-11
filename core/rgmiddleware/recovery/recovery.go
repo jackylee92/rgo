@@ -3,9 +3,9 @@ package recovery
 import (
 	"errors"
 
-	"rgo/core/rgglobal/rgerror"
-	"rgo/core/rglog"
-	"rgo/core/rgresponse"
+	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgresponse"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,6 +1,9 @@
 package rgtime
 
-import "time"
+import (
+    "github.com/jackylee92/rgo/core/rgglobal/rgconst"
+    "time"
+)
 
 /*
  * @Content : rgtime
@@ -14,5 +17,5 @@ import "time"
 // @Author  : LiJunDong
 // @Time    : 2022-05-28
 func NowDateTime() string {
-    return time.Now().Format("2006-01-02 15:04:05")
+    return time.Now().Format(rgconst.GoTimeFormat)
 }

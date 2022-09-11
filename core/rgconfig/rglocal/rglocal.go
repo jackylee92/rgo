@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v2"
-	"rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgconfig"
 )
 
 type LocalConfig struct{}
