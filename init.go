@@ -1,6 +1,7 @@
 package rgo
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/jackylee92/rgo/core/rgconfig"
 	"github.com/jackylee92/rgo/core/rgconfig/rgapollo"
 	"github.com/jackylee92/rgo/core/rgconfig/rglocal"
@@ -13,9 +14,7 @@ import (
 	"github.com/jackylee92/rgo/core/rgmodel/rgredis"
 	"github.com/jackylee92/rgo/core/rgrequest"
 	"github.com/jackylee92/rgo/core/rgrequired"
-	_ "github.com/jackylee92/rgo/core/rgrequired"
 	"github.com/jackylee92/rgo/core/rgstarthook"
-	"github.com/gin-gonic/gin"
 	"log"
 )
 
