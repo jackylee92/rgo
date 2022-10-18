@@ -10,8 +10,7 @@ import (
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"github.com/jackylee92/rgo/core/rgjaerger"
 	"github.com/jackylee92/rgo/core/rglog"
-	"github.com/jackylee92/rgo/core/rgmodel/rgmysql"
-	"github.com/jackylee92/rgo/core/rgmodel/rgredis"
+	"github.com/jackylee92/rgo/core/rgmysql"
 	"github.com/jackylee92/rgo/core/rgrequest"
 	"github.com/jackylee92/rgo/core/rgrequired"
 	"github.com/jackylee92/rgo/core/rgstarthook"
@@ -46,18 +45,17 @@ func init() {
 	rgjaerger.SetJaergerStatus(rgconfig.GetBool(rgconst.ConfigKeyJaergerStatus))
 	// <LiJunDong : 2022-03-30 21:18:37> --- 根据配置是否启用mysql
 	rgmysql.Start()
-	// <LiJunDong : 2022-03-30 23:22:14> --- 启动redis，没有redis配置则不会建立链接
-	rgredis.Start()
 	// <LiJunDong : 2022-05-30 18:14:09> --- 启动用户注册的函数
 	rgstarthook.Run()
 	//  <LiJunDong : 2022-06-21 21:21:04> --- 启动一个服务自身的容器
 	serverContainer()
 	startMsg := "启动项【rgo-init】:成功"
 	rglog.SystemInfo(startMsg)
-	log.Println("|SystemInfo| " + startMsg+ "| UniqId:终端")
+	log.Println("|SystemInfo| " + startMsg + "| UniqId:终端")
 }
 
 var This *rgrequest.Client
+
 // serverContainer 服务启动自身的一个对象，在非web请求，无上下文this对象时使用这个
 // @Param   :
 // @Return  : this *rgrequest.Client
@@ -65,5 +63,5 @@ var This *rgrequest.Client
 // @Time    : 2022-06-21
 func serverContainer() {
 	ctx := &gin.Context{}
-    This = rgrequest.Get(ctx)
+	This = rgrequest.Get(ctx)
 }

@@ -2,15 +2,14 @@ package rgrequest
 
 import (
 	"bytes"
-	"io/ioutil"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgmysql"
+	"io/ioutil"
 	"time"
 
 	"github.com/jackylee92/rgo/core/rgjaerger"
 	"github.com/jackylee92/rgo/core/rglog"
-	"github.com/jackylee92/rgo/core/rgmodel/rgmysql"
 	"github.com/jackylee92/rgo/core/rgresponse"
-
 
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"

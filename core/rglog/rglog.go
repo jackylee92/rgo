@@ -1,8 +1,10 @@
 package rglog
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -70,16 +72,11 @@ func New(uniqId string) *Client {
 * @Time    : 2022-03-01
  */
 func (c *Client) Info(any ...interface{}) {
-	paramArr := make([]string, 0, 25)
-	for key, item := range any {
-		if key >= 20 {
-			break
-		}
-		paramArr = append(paramArr, interfaceToString(item))
-	}
-	param := strings.Join(paramArr, " | ")
-	localDebug("Info", c.UniqId, param)
+	param := localDebug("Info", c.UniqId, any)
 	if e := log.Info(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -122,16 +119,11 @@ func (c *Client) Info(any ...interface{}) {
 * @Time    : 2022-03-09
  */
 func (c *Client) Error(any ...interface{}) {
-	paramArr := make([]string, 0, 25)
-	for key, item := range any {
-		if key >= 20 {
-			break
-		}
-		paramArr = append(paramArr, interfaceToString(item))
-	}
-	param := strings.Join(paramArr, " | ")
-	localDebug("Error", c.UniqId, param)
+	param := localDebug("Error", c.UniqId, any)
 	if e := log.Error(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_ERROR.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -174,16 +166,11 @@ func (c *Client) Error(any ...interface{}) {
 * @Time    : 2022-03-09
  */
 func (c *Client) Debug(any ...interface{}) {
-	paramArr := make([]string, 0, 25)
-	for key, item := range any {
-		if key >= 20 {
-			break
-		}
-		paramArr = append(paramArr, interfaceToString(item))
-	}
-	param := strings.Join(paramArr, " | ")
-	localDebug("Debug", c.UniqId, param)
+	param := localDebug("Debug", c.UniqId, any)
 	if e := log.Debug(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -226,16 +213,11 @@ func (c *Client) Debug(any ...interface{}) {
 * @Time    : 2022-03-09
  */
 func (c *Client) Warn(any ...interface{}) {
-	paramArr := make([]string, 0, 25)
-	for key, item := range any {
-		if key >= 20 {
-			break
-		}
-		paramArr = append(paramArr, interfaceToString(item))
-	}
-	param := strings.Join(paramArr, " | ")
-	localDebug("Warn", c.UniqId, param)
+	param := localDebug("Warn", c.UniqId, any)
 	if e := log.Warn(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -278,16 +260,11 @@ func (c *Client) Warn(any ...interface{}) {
 * @Time    : 2022-03-09
  */
 func (c *Client) Fatal(any ...interface{}) {
-	paramArr := make([]string, 0, 25)
-	for key, item := range any {
-		if key >= 20 {
-			break
-		}
-		paramArr = append(paramArr, interfaceToString(item))
-	}
-	param := strings.Join(paramArr, " | ")
-	localDebug("Fatal", c.UniqId, param)
+	param := localDebug("Fatal", c.UniqId, any)
 	if e := log.Fatal(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_ERROR.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -379,15 +356,10 @@ func setLogLever() (level zerolog.Level) {
 * @Time    : 2022-03-11
  */
 func SystemInfo(any ...interface{}) {
-	paramArr := make([]string, 0, 25)
-	for key, item := range any {
-		if key >= 20 {
-			break
-		}
-		paramArr = append(paramArr, interfaceToString(item))
+	param := localDebug("SystemInfo", "system", any)
+	if param == "" {
+		param = reqToStr(any)
 	}
-	param := strings.Join(paramArr, " | ")
-	localDebug("SystemInfo", "system", param)
 	nowDate := time.Now().Format(rgconst.GoDateFormat)
 	filePath := filePathMerge(logDir, "/"+nowDate, "_SYSTEM.log")
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -429,15 +401,10 @@ func SystemInfo(any ...interface{}) {
 * @Time    : 2022-03-11
  */
 func SystemError(any ...interface{}) {
-	paramArr := make([]string, 0, 25)
-	for key, item := range any {
-		if key >= 20 {
-			break
-		}
-		paramArr = append(paramArr, interfaceToString(item))
+	param := localDebug("SystemError", "system", any)
+	if param == "" {
+		param = reqToStr(any)
 	}
-	param := strings.Join(paramArr, " | ")
-	localDebug("SystemError", "system", param)
 	nowDate := time.Now().Format(rgconst.GoDateFormat)
 	filePath := filePathMerge(logDir, "/"+nowDate, "_SYSTEM.log")
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -479,7 +446,7 @@ func SystemError(any ...interface{}) {
 * @Time    : 2022-03-11
  */
 func RequestLog(uniqId string, typ string, param string) {
-	localDebug(typ, uniqId, param)
+	param = localDebug(typ, uniqId, []interface{}{param})
 	nowDate := time.Now().Format(rgconst.GoDateFormat)
 	filePath := filePathMerge(logDir, "/"+nowDate, "_REQUEST.log")
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -523,14 +490,15 @@ func filePathMerge(param ...string) string {
 /*
 * @Content : 本地调试日志
 * @Param   :
-* @Return  :
+* @Return  : 日志内容
 * @Author  : LiJunDong
 * @Time    : 2022-03-28
  */
-func localDebug(typ string, uniqId string, param string) {
+func localDebug(typ string, uniqId string, any []interface{}) (logStr string) {
 	if !rgconfig.GetBool(rgconst.ConfigKeyDebug) {
-		return
+		return ""
 	}
+	param := reqToStr(any)
 	output := zerolog.ConsoleWriter{
 		Out:        os.Stdout,
 		TimeFormat: rgconst.GoTimeFormat,
@@ -553,6 +521,7 @@ func localDebug(typ string, uniqId string, param string) {
 	}
 	logger := log.Sample(levelSimpler).Output(output).With().Logger()
 	logger.Log().Fields(map[string]interface{}{"UniqId": uniqId}).Msg(param)
+	return param
 }
 
 func interfaceToString(param interface{}) string {
@@ -595,4 +564,19 @@ func interfaceToString(param interface{}) string {
 		thisString = string(logTmp)
 	}
 	return thisString
+}
+
+func reqToStr(any []interface{}) (data string) {
+	if len(any) == 0 {
+		return ""
+	}
+	paramArr := make([]string, 0, 25)
+	for key, item := range any {
+		if key >= 20 {
+			break
+		}
+		paramArr = append(paramArr, interfaceToString(item))
+	}
+	data = strings.Join(paramArr, " | ")
+	return data
 }

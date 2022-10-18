@@ -2,8 +2,8 @@ package rgrediscluster
 
 import (
 	"errors"
-	"github.com/jackylee92/rgo/core/rglog"
 	"github.com/go-redis/redis"
+	"github.com/jackylee92/rgo/core/rglog"
 	"strings"
 	"sync"
 )
@@ -23,7 +23,6 @@ var redisClientPool sync.Map
 type Client struct {
 	linkObj *redis.ClusterClient
 }
-
 
 // Start 启动 集群模式，返回key，通过key获取链接对象，调用redis方法执行
 // @Param   :
@@ -48,7 +47,7 @@ func Start(cfg Config) (key string, err error) {
 	if err = client.Ping().Err(); err != nil {
 		panic("redis链接失败|" + strings.Join(cfg.Addrs, ","))
 	}
-	rglog.SystemInfo("启动项【redis】" + strings.Join(cfg.Addrs, ",") + ":成功")
+	rglog.SystemInfo("启动项【redis】", strings.Join(cfg.Addrs, ","), "成功")
 	key = strings.ReplaceAll(strings.ReplaceAll(strings.Join(cfg.Addrs, ""), ".", ""), ":", "")
 	redisClientPool.Store(key, &Client{
 		linkObj: client,
@@ -79,6 +78,6 @@ func validateConfig(cfg Config) (err error) {
 	return err
 }
 
-func GetRedisClient(client *Client)(baseClient *redis.ClusterClient){
-	return client.linkObj
+func (client *Client) GetRedisClient() (baseClient redis.Cmdable, err error) {
+	return client.linkObj, nil
 }

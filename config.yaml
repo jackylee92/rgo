@@ -1,14 +1,14 @@
 # 配置文件方式 file/apollo
 config: file
 # 环境local/dev/test/uat/prod
-env : dev
+env: local
 
 # 系统配置
 sys_app_name: demo
 # 启动端口
 sys_port: 80
 # 是否开启调试模式
-sys_debug: false
+sys_debug: true
 # 日志目录 没有或者为空 默认保存在storage/log中
 sys_log_dir:
 # 记录日志级别 debug/info/warn/error
@@ -32,7 +32,7 @@ sys_jaerger_host:
 
 ##### MySQL
 # 数据库配置
-sys_mysql: 
+sys_mysql:
 #  default: "root:root@tcp(127.0.0.1:3306)/demo_test?charset=utf8mb4&parseTime=True&loc=Local"
 # 开启Mysql日志
 sys_mysql_log: info
@@ -91,7 +91,7 @@ util_start_msg_notice_email_to:
 # 多级缓存监听redis中key的前缀，建议各自项目中使用redis有一个统一的前缀
 util_cache_listen_redis_key_prefix: ''
 # 多级缓存中本地缓存允许容量 单位M
-util_cache_memory_size : 100
+util_cache_memory_size: 500
 
 # 本地配置
-lib_cc_host : http://test.cc.ruigushop.com
+lib_cc_host: http://test.cc.ruigushop.com

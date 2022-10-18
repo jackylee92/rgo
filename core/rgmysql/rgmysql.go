@@ -110,7 +110,7 @@ func connect() {
 		connectPool[name] = db
 		connectNames = append(connectNames, "【"+name+"】")
 	}
-	rglog.SystemInfo("启动项【mysql】" + strings.Join(connectNames, "") + ":成功")
+	rglog.SystemInfo("启动项【mysql】", strings.Join(connectNames, ""), ":成功")
 }
 
 /*

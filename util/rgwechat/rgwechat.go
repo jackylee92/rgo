@@ -23,7 +23,7 @@ type WeClient struct {
 	Content []string
 	Title   string
 	To      string
-	Level msgType
+	Level   msgType
 }
 
 func (c *WeClient) Send() (bool, error) {
@@ -56,13 +56,13 @@ func (c *WeClient) Send() (bool, error) {
 	return true, nil
 }
 
-func (c *WeClient)getContent() (content string) {
+func (c *WeClient) getContent() (content string) {
 	msgType := "warning"
 	if c.Level == Info {
 		msgType = "info"
 	}
 	content = "# <font color=\"comment\" size=\"11\">【 " + rgenv.GetEnv() + "】</font>\n"
-	content += "# <font size=\"16\" color=\"" +msgType+ "\"> " + c.Title + "</font>\n"
+	content += "# <font size=\"16\" color=\"" + msgType + "\"> " + c.Title + "</font>\n"
 	content += "<font color=\"comment\" size=\"10\">at " + rgtime.NowDateTime() + "</font>\n"
 	if len(c.Content) != 0 {
 		for _, value := range c.Content {

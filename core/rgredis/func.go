@@ -8,7 +8,22 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func (client *Client) GetClient() (*redis.Client, error) {
+type RedisClientITF interface {
+	GetClient() (redis.Cmdable, error)
+	Get(string) (string, error)
+	Del(string) bool
+	LRange(string, int64, int64) ([]string, error)
+	MGet(...string) ([]interface{}, error)
+	SMembers(string) ([]string, error)
+	SInter(...string) ([]string, error)
+	SDiff(...string) ([]string, error)
+	SUnion(...string) ([]string, error)
+	HGet(string, string) (string, error)
+	HMGet(string, []string) ([]interface{}, error)
+	HGetAll(string) (map[string]string, error)
+}
+
+func (client *Client) GetClient() (redis.Cmdable, error) {
 	return client.linkObj, nil
 }
 
@@ -477,9 +492,9 @@ func (client *Client) HKeys(key string) (res []string, err error) {
 	return client.linkObj.HKeys(key).Result()
 }
 
-func (client *Client)SIsMember(key string, member interface{})(res bool, err error){
+func (client *Client) SIsMember(key string, member interface{}) (res bool, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.SIsMember(key, member).Result()
 }

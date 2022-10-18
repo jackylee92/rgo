@@ -27,7 +27,7 @@ func JaergerStatus() bool {
 
 func SetJaergerStatus(status bool) {
 	if status {
-		rglog.SystemInfo("启动项【jaerger_status】:开启")
+		rglog.SystemInfo("启动项【jaerger_status】| 开启")
 	}
 	jaergerStatus = status
 }
