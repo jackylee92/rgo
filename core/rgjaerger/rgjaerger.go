@@ -2,16 +2,17 @@ package rgjaerger
 
 import (
 	"errors"
-	"go.opentelemetry.io/otel/bridge/opentracing"
+	"github.com/opentracing/opentracing-go"
+	"github.com/uber/jaeger-client-go"
 	"io"
 	"net/http"
 	"time"
 
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgglobal/rgerror"
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
+	"github.com/jackylee92/rgo/core/rglog"
 
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	// jaegerlog "github.com/uber/jaeger-client-go/log"
@@ -26,7 +27,7 @@ func JaergerStatus() bool {
 
 func SetJaergerStatus(status bool) {
 	if status {
-		rglog.SystemInfo("启动项【jaerger_status】:开启")
+		rglog.SystemInfo("启动项【jaerger_status】| 开启")
 	}
 	jaergerStatus = status
 }

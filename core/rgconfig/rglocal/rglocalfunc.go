@@ -1,8 +1,8 @@
 package rglocal
 
 import (
-	"rgo/core/rgconfig"
-	"rgo/core/rgjson"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgjson"
 )
 
 // 实现config方法的结构体

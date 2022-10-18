@@ -1,8 +1,8 @@
 package container
 
 import (
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgrequest"
 
 	"github.com/gin-gonic/gin"
 )

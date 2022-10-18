@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgjson"
-	"rgo/core/rglog"
-	"rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgjson"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgrequest"
 
 	"github.com/gin-gonic/gin"
 )

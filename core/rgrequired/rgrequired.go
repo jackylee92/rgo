@@ -1,9 +1,9 @@
 package rgrequired
 
 import (
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rglog"
 )
 
 // <LiJunDong : 2022-03-02 14:10:55> --- 验证框架必须的目录结构
@@ -17,7 +17,7 @@ import (
  */
 func checkRequiredFolders() {
 	// if _, err := os.Stat(rgglobal.BasePathConfig); err != nil {
-	//     rglog.SystemError(rgerror.ErrorConfigExist + err.Error())
+	//     rglog.SystemError(error_enum.ErrorConfigExist + err.Error())
 	// }
 }
 

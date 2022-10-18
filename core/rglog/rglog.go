@@ -1,15 +1,17 @@
 package rglog
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal"
-	"rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -27,7 +29,7 @@ func Start() {
 	configLogDir := rgconfig.GetStr(rgconst.ConfigLogDir)
 	if configLogDir == "" {
 		logDir = filePathMerge(rgglobal.BasePath, "/storage/log/")
-	}else{
+	} else {
 		logDir = filePathMerge(configLogDir)
 	}
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
@@ -59,7 +61,7 @@ var levelSimpler *zerolog.LevelSampler = &zerolog.LevelSampler{
 // @Time    : 2022-06-03
 func New(uniqId string) *Client {
 	// TODO <LiJunDong : 2022-06-03 11:11:07> --- 使用pool避免频繁创建对象
-    return &Client{UniqId: uniqId}
+	return &Client{UniqId: uniqId}
 }
 
 /*
@@ -69,9 +71,12 @@ func New(uniqId string) *Client {
 * @Author  : LiJunDong
 * @Time    : 2022-03-01
  */
-func (c *Client) Info(param string) {
-	localDebug("Info", c.UniqId, param)
+func (c *Client) Info(any ...interface{}) {
+	param := localDebug("Info", c.UniqId, any)
 	if e := log.Info(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -80,9 +85,11 @@ func (c *Client) Info(param string) {
 			return
 		}
 		output := zerolog.ConsoleWriter{
-			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
-			NoColor:    true,
+			Out:     f,
+			NoColor: true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -111,9 +118,12 @@ func (c *Client) Info(param string) {
 * @Author  : LiJunDong
 * @Time    : 2022-03-09
  */
-func (c *Client) Error(param string) {
-	localDebug("Error", c.UniqId, param)
+func (c *Client) Error(any ...interface{}) {
+	param := localDebug("Error", c.UniqId, any)
 	if e := log.Error(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_ERROR.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -122,9 +132,11 @@ func (c *Client) Error(param string) {
 			return
 		}
 		output := zerolog.ConsoleWriter{
-			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
-			NoColor:    true,
+			Out:     f,
+			NoColor: true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -153,9 +165,12 @@ func (c *Client) Error(param string) {
 * @Author  : LiJunDong
 * @Time    : 2022-03-09
  */
-func (c *Client) Debug(param string) {
-	localDebug("Debug", c.UniqId, param)
+func (c *Client) Debug(any ...interface{}) {
+	param := localDebug("Debug", c.UniqId, any)
 	if e := log.Debug(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -164,9 +179,11 @@ func (c *Client) Debug(param string) {
 			return
 		}
 		output := zerolog.ConsoleWriter{
-			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
-			NoColor:    true,
+			Out:     f,
+			NoColor: true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -195,9 +212,12 @@ func (c *Client) Debug(param string) {
 * @Author  : LiJunDong
 * @Time    : 2022-03-09
  */
-func (c *Client) Warn(param string) {
-	localDebug("Warn", c.UniqId, param)
+func (c *Client) Warn(any ...interface{}) {
+	param := localDebug("Warn", c.UniqId, any)
 	if e := log.Warn(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -206,9 +226,11 @@ func (c *Client) Warn(param string) {
 			return
 		}
 		output := zerolog.ConsoleWriter{
-			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
-			NoColor:    true,
+			Out:     f,
+			NoColor: true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -237,9 +259,12 @@ func (c *Client) Warn(param string) {
 * @Author  : LiJunDong
 * @Time    : 2022-03-09
  */
-func (c *Client) Fatal(param string) {
-	localDebug("Fatal", c.UniqId, param)
+func (c *Client) Fatal(any ...interface{}) {
+	param := localDebug("Fatal", c.UniqId, any)
 	if e := log.Fatal(); e.Enabled() {
+		if param == "" {
+			param = reqToStr(any)
+		}
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_ERROR.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -248,9 +273,11 @@ func (c *Client) Fatal(param string) {
 			return
 		}
 		output := zerolog.ConsoleWriter{
-			Out:        f,
-			TimeFormat: rgconst.GoTimeFormat,
-			NoColor:    true,
+			Out:     f,
+			NoColor: true,
+			FormatTimestamp: func(i interface{}) string {
+				return time.Now().Local().Format(rgconst.GoTimeFormat)
+			},
 			FormatLevel: func(i interface{}) string {
 				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 			},
@@ -328,8 +355,11 @@ func setLogLever() (level zerolog.Level) {
 * @Author  : LiJunDong
 * @Time    : 2022-03-11
  */
-func SystemInfo(param string) {
-	localDebug("SystemInfo", "system", param)
+func SystemInfo(any ...interface{}) {
+	param := localDebug("SystemInfo", "system", any)
+	if param == "" {
+		param = reqToStr(any)
+	}
 	nowDate := time.Now().Format(rgconst.GoDateFormat)
 	filePath := filePathMerge(logDir, "/"+nowDate, "_SYSTEM.log")
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -338,9 +368,11 @@ func SystemInfo(param string) {
 		return
 	}
 	output := zerolog.ConsoleWriter{
-		Out:        f,
-		TimeFormat: rgconst.GoTimeFormat,
-		NoColor:    true,
+		Out:     f,
+		NoColor: true,
+		FormatTimestamp: func(i interface{}) string {
+			return time.Now().Local().Format(rgconst.GoTimeFormat)
+		},
 		FormatLevel: func(i interface{}) string {
 			return "| SYSTEMINFO|"
 		},
@@ -368,8 +400,11 @@ func SystemInfo(param string) {
 * @Author  : LiJunDong
 * @Time    : 2022-03-11
  */
-func SystemError(param string) {
-	localDebug("SystemError", "system", param)
+func SystemError(any ...interface{}) {
+	param := localDebug("SystemError", "system", any)
+	if param == "" {
+		param = reqToStr(any)
+	}
 	nowDate := time.Now().Format(rgconst.GoDateFormat)
 	filePath := filePathMerge(logDir, "/"+nowDate, "_SYSTEM.log")
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -378,9 +413,11 @@ func SystemError(param string) {
 		return
 	}
 	output := zerolog.ConsoleWriter{
-		Out:        f,
-		TimeFormat: rgconst.GoTimeFormat,
-		NoColor:    true,
+		Out:     f,
+		NoColor: true,
+		FormatTimestamp: func(i interface{}) string {
+			return time.Now().Local().Format(rgconst.GoTimeFormat)
+		},
 		FormatLevel: func(i interface{}) string {
 			return "| SYSTEMERROR|"
 		},
@@ -409,7 +446,7 @@ func SystemError(param string) {
 * @Time    : 2022-03-11
  */
 func RequestLog(uniqId string, typ string, param string) {
-	localDebug(typ, uniqId, param)
+	param = localDebug(typ, uniqId, []interface{}{param})
 	nowDate := time.Now().Format(rgconst.GoDateFormat)
 	filePath := filePathMerge(logDir, "/"+nowDate, "_REQUEST.log")
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -418,9 +455,11 @@ func RequestLog(uniqId string, typ string, param string) {
 		return
 	}
 	output := zerolog.ConsoleWriter{
-		Out:        f,
-		TimeFormat: rgconst.GoTimeFormat,
-		NoColor:    true,
+		Out:     f,
+		NoColor: true,
+		FormatTimestamp: func(i interface{}) string {
+			return time.Now().Local().Format(rgconst.GoTimeFormat)
+		},
 		FormatLevel: func(i interface{}) string {
 			return fmt.Sprintf("|%s|", typ)
 		},
@@ -451,18 +490,22 @@ func filePathMerge(param ...string) string {
 /*
 * @Content : 本地调试日志
 * @Param   :
-* @Return  :
+* @Return  : 日志内容
 * @Author  : LiJunDong
 * @Time    : 2022-03-28
  */
-func localDebug(typ string, uniqId string, param string) {
+func localDebug(typ string, uniqId string, any []interface{}) (logStr string) {
 	if !rgconfig.GetBool(rgconst.ConfigKeyDebug) {
-		return
+		return ""
 	}
+	param := reqToStr(any)
 	output := zerolog.ConsoleWriter{
 		Out:        os.Stdout,
 		TimeFormat: rgconst.GoTimeFormat,
 		NoColor:    true,
+		FormatTimestamp: func(i interface{}) string {
+			return time.Now().Local().Format(rgconst.GoTimeFormat)
+		},
 		FormatLevel: func(i interface{}) string {
 			return fmt.Sprintf("|%s|", typ)
 		},
@@ -478,4 +521,62 @@ func localDebug(typ string, uniqId string, param string) {
 	}
 	logger := log.Sample(levelSimpler).Output(output).With().Logger()
 	logger.Log().Fields(map[string]interface{}{"UniqId": uniqId}).Msg(param)
+	return param
+}
+
+func interfaceToString(param interface{}) string {
+	thisString := ""
+	switch param.(type) {
+	case string:
+		if value, ok := param.(string); ok {
+			thisString = value
+		}
+	case float64:
+		if value, ok := param.(float64); ok {
+			thisString = strconv.FormatFloat(value, 'f', -1, 64)
+		}
+	case int:
+		if value, ok := param.(int); ok {
+			thisString = strconv.Itoa(value)
+		}
+	case int64:
+		if value, ok := param.(int64); ok {
+			thisString = strconv.FormatInt(value, 10)
+		}
+	case float32:
+		if value, ok := param.(float32); ok {
+			thisString = strconv.FormatFloat(float64(value), 'f', -1, 32)
+		}
+	case error:
+		if value, ok := param.(error); ok {
+			thisString = value.Error()
+		}
+	case bool:
+		if value, ok := param.(bool); ok {
+			if value == true {
+				thisString = "true"
+			} else {
+				thisString = "false"
+			}
+		}
+	default:
+		logTmp, _ := json.Marshal(param)
+		thisString = string(logTmp)
+	}
+	return thisString
+}
+
+func reqToStr(any []interface{}) (data string) {
+	if len(any) == 0 {
+		return ""
+	}
+	paramArr := make([]string, 0, 25)
+	for key, item := range any {
+		if key >= 20 {
+			break
+		}
+		paramArr = append(paramArr, interfaceToString(item))
+	}
+	data = strings.Join(paramArr, " | ")
+	return data
 }

@@ -1,7 +1,7 @@
 package rgapollo
 
 import (
-	"rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgconfig"
 
 	agollo "github.com/apolloconfig/agollo/v4"
 	"github.com/apolloconfig/agollo/v4/env/config"

@@ -2,13 +2,14 @@ package rgmq
 
 import (
 	"errors"
+	"github.com/jackylee92/rgo"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal"
+	"github.com/jackylee92/rgo/core/rgjson"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgrequest"
 	"github.com/rs/xid"
 	"github.com/streadway/amqp"
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal"
-	"rgo/core/rgjson"
-	"rgo/core/rglog"
-	"rgo/core/rgrequest"
 	"time"
 )
 
@@ -101,7 +102,7 @@ func (c *Client) Publish(data string, complete func(bool, string)) (err error) {
 	}
 	defer func() {
 		if err := recover(); err != nil {
-			c.this.Log.Error("rabbitMq 捕获panic|")
+			c.this.Log.Error("rabbitMq 捕获panic", err)
 		}
 	}()
 	chanMaxLock <- struct{}{}
@@ -118,8 +119,7 @@ func (c *Client) Publish(data string, complete func(bool, string)) (err error) {
 			"message":  messageId,
 			"body":     data,
 		}
-		logStr, _ := rgjson.Marshel(logMap)
-		c.this.Log.Info("rabbitMq producer |" + string(logStr))
+		c.this.Log.Info("rabbitMq producer ", logMap)
 	}
 	if c.conn == nil || c.conn.IsClosed() {
 		conn, err := getConn(c.config)
@@ -169,9 +169,9 @@ func (c *Client) publishComplete(confirms <-chan amqp.Confirmation, messageId st
 	result := false
 	if confirmed := <-confirms; confirmed.Ack {
 		result = true
-		c.this.Log.Info("rabbitMq producer 消息确认成功|" + messageId)
+		c.this.Log.Info("rabbitMq producer 消息确认成功", messageId)
 	} else {
-		c.this.Log.Info("rabbitMq producer 消息确认失败|" + messageId)
+		c.this.Log.Info("rabbitMq producer 消息确认失败", messageId)
 	}
 	if complete != nil {
 		complete(result, data)
@@ -229,6 +229,11 @@ func (c *Client) Listen(pf func(delivery amqp.Delivery) bool) (err error) {
 	if _, err := ch.QueueDeclare(c.config.Queue, true, false, false, false, nil); err != nil {
 		return errors.New("消费者创建Queue声明失败|" + err.Error())
 	}
+	err = ch.Qos(2, 0, false)
+	if err != nil {
+		rglog.SystemError("消费者设置预加载条数失败" + err.Error())
+		return
+	}
 	autoAck := c.config.AutoAck
 	consumeId := rgglobal.AppName
 	msgs, err := ch.Consume(
@@ -266,12 +271,12 @@ func (c *Client) Listen(pf func(delivery amqp.Delivery) bool) (err error) {
 				"user_id":      msg.UserId,
 			}
 			logDataJson, _ := rgjson.Marshel(logData)
-			rglog.New("nil").Info("rabbitMq consumer |" + logDataJson)
+			rgo.This.Log.Info("rabbitMq consumer", logDataJson)
 		}
 		ok := pf(msg)
 		if ok && !autoAck {
 			if logOpen {
-				rglog.New("nil").Info("rabbitMq consumer ack true|" + msg.MessageId)
+				rgo.This.Log.Info("rabbitMq consumer ack true", msg.MessageId)
 			}
 			msg.Ack(ok)
 		}

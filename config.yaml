@@ -1,0 +1,97 @@
+# 配置文件方式 file/apollo
+config: file
+# 环境local/dev/test/uat/prod
+env: local
+
+# 系统配置
+sys_app_name: demo
+# 启动端口
+sys_port: 80
+# 是否开启调试模式
+sys_debug: true
+# 日志目录 没有或者为空 默认保存在storage/log中
+sys_log_dir:
+# 记录日志级别 debug/info/warn/error
+sys_log_level: debug
+# 是否开启请求日志 1:开启请求 2:开启请求+返回日志 0:不记录
+sys_request_log: 2
+# curl日志
+util_curl_log: true
+# 是否允许跨域
+sys_http_allow_cross_domain: true
+# 语言
+sys_language: zh
+# 是否返回uniqId
+sys_return_uniqid: true
+# pprof开启关闭
+sys_pprof: true
+# jearger 开启/关闭
+sys_jaerger_status: false
+# jearger host地址
+sys_jaerger_host:
+
+##### MySQL
+# 数据库配置
+sys_mysql:
+#  default: "root:root@tcp(127.0.0.1:3306)/demo_test?charset=utf8mb4&parseTime=True&loc=Local"
+# 开启Mysql日志
+sys_mysql_log: info
+# 开始最大连接数
+sys_mysql_max_open_conns: 50
+# 最大连接数
+sys_mysql_max_idle_conns: 150
+# 生命周期
+sys_mysql_max_life_time: 30
+
+#### Redis
+# Redis 链接方式 1:单机 2:集群
+sys_redis_type: 0
+# redis 地址
+sys_redis_addr:
+# sys_redis_addr: 127.0.0.1:6379
+# redis 集群地址
+sys_redis_addrs:
+# redis认证
+sys_redis_password:
+# redisDB
+sys_redis_db: 0
+# redis连接池最大socket连接数，默认为10倍CPU数， 10 * runtime.NumCPU
+sys_redis_pool_size: 100
+# redis在启动阶段创建指定数量的Idle连接，并长期维持idle状态的连接数不少于指定数量
+sys_redis_min_idle_conns: 50
+
+#### RabbitMQ 公共配置
+# rabbitMQ 心跳
+util_rabbitmq_heartbeat: 30
+# rabbitmq 日志
+util_rabbitmq_log: true
+# rabbitmq 并发数 默认:10000
+util_rabbitmq_chan_max: 10000
+
+#### Notice
+# email 服务地址
+util_email_host: smtp.qiye.aliyun.com
+# email 服务端口
+util_email_port: 465
+# email 用户名 根据自己需要写，可写自己企业邮箱名
+util_email_login: lijundong@ruigushop.com
+# email 密码 根据自己需要写，可写自己企业邮箱密码
+util_email_pwd:
+# wechat 企业微信接受消息地址，企业微信都是内部人接受，所以不需要灵活配置，一个服务只对应一个微信群即可
+util_wechat_to: 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=0b8e72f3-25c3-45e1-a515-15df7df99567'
+# 启动后消息发送企业微信开关
+util_start_msg_notice_wechat: true
+# 启动后消息邮件发送方
+util_start_msg_notice_email_from:
+# 启动后消息邮件接收方
+util_start_msg_notice_email_to:
+  - xxx@qq.com
+
+#### Cache
+# 多级缓存监听redis中key的前缀，建议各自项目中使用redis有一个统一的前缀
+util_cache_listen_redis_key_prefix: ''
+# 多级缓存中本地缓存允许容量 单位M
+util_cache_memory_size: 500
+
+# 本地配置
+lib_cc_host: http://test.cc.ruigushop.com

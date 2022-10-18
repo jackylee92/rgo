@@ -3,10 +3,11 @@ package rgcache
 import (
 	"github.com/coocood/freecache"
 	"github.com/go-redis/redis"
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rglog"
-	"rgo/core/rgmodel/rgredis"
+	"github.com/jackylee92/rgo"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgredis"
 )
 
 /*
@@ -16,38 +17,40 @@ import (
  */
 
 const (
-	memorySize = "util_cache_memory_size" // freecache 申请内存大小
+	memorySize     = "util_cache_memory_size"             // freecache 申请内存大小
 	redisKeyPrefix = "util_cache_listen_redis_key_prefix" // 监听的redis中key的前缀
 )
+
 var Client *freecache.Cache // <LiJunDong : 2022-06-01 14:53:33> --- 对外开放，项目中可以使用本地缓存
 
-func init() {
-	run()
-}
+type redisClientTypeEnum int
+
+const (
+	RedisEnum redisClientTypeEnum = iota + 1
+	RedisClusterEnum
+)
+
+var redisClient rgredis.RedisClientITF
+var redisClientType redisClientTypeEnum
+
 // run 启动
 // @Param   :
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-05-30
-func run()  {
-	clientType := rgredis.GetClientType()
+func Run(redisClient rgredis.RedisClientITF, enum redisClientTypeEnum) {
 	// <LiJunDong : 2022-06-01 11:26:17> --- 1: 单机 2：集群
-	if clientType != 1 && clientType != 2 {
-		rglog.SystemError("redis链接错误")
-		return
-	}
-	clientInterface, err := rgredis.GetClient()
-	if err != nil {
-		rglog.SystemError("开启监听失败，获取链接失败|" + err.Error())
+	if enum != 1 && enum != 2 {
+		rglog.SystemError("redisClientType错误")
 		return
 	}
 	configSize := rgconfig.GetInt(memorySize)
 	if configSize == 0 {
-		rglog.SystemError("freecahce启动失败，未设置容量|" + memorySize)
+		rglog.SystemError("freeCache启动失败，未设置容量|" + memorySize)
 		return
 	}
 	freecacheUp(int(configSize))
-	go listen(clientType, clientInterface)
+	go listen(redisClientType, redisClient)
 }
 
 // listen 订阅redis
@@ -55,24 +58,42 @@ func run()  {
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-06-01
-func listen(clientType int, clientInterface redis.Cmdable) () {
+func listen(clientType redisClientTypeEnum, clientInterface rgredis.RedisClientITF) {
 	keyPrefix := rgconfig.GetStr(redisKeyPrefix)
 	redisDB := rgconfig.GetStr(rgconst.ConfigKeyRedisDB)
 	if redisDB == "" {
 		redisDB = "0"
 	}
-	baseChanName := "__keyspace@" +redisDB+"__:" // <LiJunDong : 2022-06-01 17:41:18> --- 取配置文件中sys_redis_db, 默认为0
+	baseChanName := "__keyspace@" + redisDB + "__:" // <LiJunDong : 2022-06-01 17:41:18> --- 取配置文件中sys_redis_db, 默认为0
 	channelName := baseChanName
 	if keyPrefix != "" {
-		channelName += keyPrefix+ "*"
+		channelName += keyPrefix + "*"
 	}
 	var pubsub *redis.PubSub
 	if clientType == 1 {
-		client := clientInterface.(*redis.Client)
+		redisLink, err := clientInterface.GetClient()
+		if err != nil {
+			rgo.This.Log.Error("单机redis链接转换失败")
+			return
+		}
+		client, ok := redisLink.(*redis.Client)
+		if !ok {
+			rgo.This.Log.Error("单机redis链接转换失败")
+			return
+		}
 		pubsub = client.PSubscribe(channelName)
 	}
 	if clientType == 2 {
-		client := clientInterface.(*redis.ClusterClient)
+		redisLink, err := clientInterface.GetClient()
+		if err != nil {
+			rgo.This.Log.Error("redisCluster链接转换失败")
+			return
+		}
+		client, ok := redisLink.(*redis.ClusterClient)
+		if !ok {
+			rgo.This.Log.Error("redisCluster链接转换失败")
+			return
+		}
 		pubsub = client.PSubscribe(channelName)
 	}
 	ch := pubsub.Channel()
@@ -93,19 +114,22 @@ func listen(clientType int, clientInterface redis.Cmdable) () {
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-06-01
-func del(action string, keys ...string) () {
+func del(action string, keys ...string) {
 	for _, item := range keys {
 		Client.Del([]byte(item))
 	}
 }
-
 
 // freecacheUp 启动freecahche
 // @Param   :
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-06-01
-func freecacheUp(size int)  {
+func freecacheUp(size int) {
 	cacheSize := size * 1024 * 1024
 	Client = freecache.NewCache(cacheSize)
+}
+
+func GetRedisClient() (rgredis.RedisClientITF, error) {
+	return redisClient, nil
 }

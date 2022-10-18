@@ -3,11 +3,11 @@ package rgresponse
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgglobal/rgmessage"
+	"github.com/jackylee92/rgo/core/rglog"
 	"net/http"
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgglobal/rgmessage"
-	"rgo/core/rglog"
 	"time"
 )
 
@@ -38,7 +38,7 @@ func returnJson(Context *gin.Context, dataCode int64, data, msg interface{}) {
 		startTime := Context.GetInt64(rgconst.ContextStartTimeKey)
 		logData := returnData
 		if startTime != 0 {
-			logData["duration"] = ( time.Now().UnixNano() - startTime )/ 1000000
+			logData["duration"] = (time.Now().UnixNano() - startTime) / 1000000
 		}
 		logStr, _ := json.Marshal(logData)
 		rglog.RequestLog(Context.GetString(rgconst.ContextUniqIDKey), "RESPONSE", string(logStr))
@@ -50,6 +50,8 @@ func returnJson(Context *gin.Context, dataCode int64, data, msg interface{}) {
 	Context.JSON(http.StatusOK, ginReturnData)
 	Context.Abort()
 }
+
+// <LiJunDong : 2022-03-10 18:59:25> --- 所有返回相关函数
 
 // 语法糖函数封装
 
@@ -105,6 +107,14 @@ func (c *Client) ReturnError(errCode int64, returnData ...interface{}) {
 	}
 	returnJson(c.Ctx, errCode, data, msg)
 	return
+}
+
+func (c *Client) View(path string, data map[string]interface{}) {
+	if data == nil {
+		data = gin.H{}
+	}
+	c.Ctx.HTML(http.StatusOK, path, data)
+	c.Ctx.Abort()
 }
 
 func New(uniqId string, ctx *gin.Context) *Client {

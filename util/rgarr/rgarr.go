@@ -3,7 +3,7 @@ package rgarr
 import (
 	"encoding/json"
 	"fmt"
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rglog"
 	"sort"
 	"strconv"
 )
@@ -140,8 +140,7 @@ func SortStringNumber(ss []string) []string {
 	return ss
 }
 
-
-func StrInArray(val string, haystack []string) (exists bool) {
+func InArrayStr(val string, haystack []string) (exists bool) {
 	for _, e := range haystack {
 		if e == val {
 			return true
@@ -151,11 +150,58 @@ func StrInArray(val string, haystack []string) (exists bool) {
 
 }
 
-func IntInArray(val int, haystack []int) (exists bool) {
+func InArrayInt(val int, haystack []int) (exists bool) {
 	for _, e := range haystack {
 		if e == val {
 			return true
 		}
 	}
 	return false
+}
+
+func InArrayInt64(val int64, haystack []int64) (exists bool) {
+	for _, e := range haystack {
+		if e == val {
+			return true
+		}
+	}
+	return false
+}
+
+func ArrayPopItem(item int64, array []int64) (newArray []int64) {
+	if len(array) == 0 {
+		return array
+	}
+	for key, val := range array {
+		if val == item {
+			return append(array[:key], array[(key+1):]...)
+		}
+	}
+	return array
+}
+func ArrayPopItems(items []int64, array []int64) (newArray []int64) {
+	if len(array) == 0 {
+		return array
+	}
+	newArray = array
+	for _, item := range items {
+		newArray = ArrayPopItem(item, newArray)
+	}
+	return newArray
+}
+
+func KeyStringMapExist(key string, mapData map[string]string) (res bool) {
+	if _, ok := mapData[key]; ok {
+		return true
+	} else {
+		return false
+	}
+}
+
+func KeyInt64MapExist(key int64, mapData map[int64]int64) (res bool) {
+	if _, ok := mapData[key]; ok {
+		return true
+	} else {
+		return false
+	}
 }

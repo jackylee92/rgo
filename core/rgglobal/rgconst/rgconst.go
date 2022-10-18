@@ -44,6 +44,9 @@ const (
 	ConfigKeyRedisMinIdleConns    string = "sys_redis_min_idle_conns"    // 本地redis在启动阶段创建指定数量的Idle连接，并长期维持idle状态的连接数不少于指定数量
 	ConfigReturnUniqId            string = "sys_return_uniqid"           // 是否返回uniqid
 	ConfigMysqlLog                string = "sys_mysql_log"               // mysql日志级别
+	ConfigMysqlMaxOpenConns       string = "sys_mysql_max_open_conns"    // mysql初始化连接数
+	ConfigMysqlMaxIdleConns       string = "sys_mysql_max_idle_conns"               // mysql最大连接数
+	ConfigMysqlMaxLifetime        string = "sys_mysql_max_life_time"               // mysql链接生命时长
 	ConfigLogDir                  string = "sys_log_dir"                 // 日志目录
 	ConfigPProf                   string = "sys_pprof"                   // pprof开启关闭
 )

@@ -1,9 +1,9 @@
 package rgstarthook
 
 import (
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgglobal/rgerror"
-	"rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
+	"github.com/jackylee92/rgo/core/rglog"
 	"sync"
 )
 

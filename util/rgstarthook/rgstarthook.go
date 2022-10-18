@@ -1,10 +1,10 @@
 package rgstarthook
 
 import (
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal"
-	"rgo/core/rgstarthook"
-	"rgo/util/rgmsg"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal"
+	"github.com/jackylee92/rgo/core/rgstarthook"
+	"github.com/jackylee92/rgo/util/rgmsg"
 )
 
 const (
@@ -31,12 +31,13 @@ func init() {
 func startNotice()  {
     rgmsgClient := rgmsg.Client{
     	This: nil,
-    	Title: "服务启动通知【" +rgglobal.AppName+ "】",
+    	Title: "服务启动通知",
 	}
 	wechatOk := rgconfig.GetBool(configNoticeWechat)
 	if wechatOk {
 		rgmsgClient.Typ = rgmsg.WECHAT
-		rgmsgClient.WechatContent = "【" + getEnvValue()+ "】服务启动通知【" +rgglobal.AppName+ "】"
+		rgmsgClient.WechatContent = "服务启动通知"
+		rgmsgClient.WechatData = []string{"server: " + rgglobal.AppName}
 		rgmsgClient.Send()
 	}
 	toEmailList := rgconfig.GetStrSlice(configNoticeEmailTo)
@@ -44,7 +45,7 @@ func startNotice()  {
 	if len(toEmailList) != 0 && fromEmailList != "" {
 		rgmsgClient.Typ = rgmsg.EMAIL
 		rgmsgClient.EmailTo = toEmailList
-		rgmsgClient.EmailContent = "【" +getEnvValue()+ "】服务启动通知【" +rgglobal.AppName+ "】"
+		rgmsgClient.EmailContent = "服务启动通知【" +rgglobal.AppName+ "】"
 		rgmsgClient.EmailFrom = fromEmailList
 		rgmsgClient.Send()
 	}

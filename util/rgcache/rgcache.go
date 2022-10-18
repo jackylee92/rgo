@@ -2,9 +2,9 @@ package rgcache
 
 import (
 	"errors"
-	"rgo/core/rgjson"
-	"rgo/core/rgmodel/rgredis"
-	"rgo/util/rgarr"
+	"github.com/jackylee92/rgo"
+	"github.com/jackylee92/rgo/core/rgjson"
+	"github.com/jackylee92/rgo/util/rgarr"
 )
 
 var errorNoStart = errors.New("本地缓存freecache未启动")
@@ -34,7 +34,8 @@ func Get(key string) (data string, err error) {
 	}
 	cacheDataBt, err := Client.Get([]byte(key))
 	if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-		data, _ = rgredis.Get(key)
+		redisClient, _ := GetRedisClient()
+		data, _ = redisClient.Get(key)
 		saveCache(key, data)
 	} else {
 		data = string(cacheDataBt)
@@ -53,7 +54,8 @@ func LRange(key string, start int64, end int64) (data []string, err error) {
 	}
 	cacheDataBt, err := Client.Get([]byte(key))
 	if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-		allData, _ := rgredis.LRange(key, 0, -1) // <LiJunDong : 2022-06-01 15:00:03> --- 获取所有
+		redisClient, _ := GetRedisClient()
+		allData, _ := redisClient.LRange(key, 0, -1) // <LiJunDong : 2022-06-01 15:00:03> --- 获取所有
 		if len(allData) != 0 {
 			cacheDataStr, _ := rgjson.Marshel(allData)
 			cacheDataBt = []byte(cacheDataStr)
@@ -83,7 +85,8 @@ func MGet(param ...string) (data []interface{}, err error) {
 	for _, key := range param {
 		cacheDataBt, err := Client.Get([]byte(key))
 		if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-			dataItem, _ := rgredis.Get(key)
+			redisClient, _ := GetRedisClient()
+			dataItem, _ := redisClient.Get(key)
 			if dataItem != "" {
 				saveCache(key, dataItem)
 			}
@@ -106,7 +109,8 @@ func SMembers(key string) (data []string, err error) {
 	}
 	cacheDataBt, err := Client.Get([]byte(key))
 	if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-		data, _ = rgredis.SMembers(key)
+		redisClient, _ := GetRedisClient()
+		data, _ = redisClient.SMembers(key)
 		if len(data) != 0 {
 			cacheDataStr, _ := rgjson.Marshel(data)
 			saveCache(key, cacheDataStr)
@@ -130,7 +134,8 @@ func SInter(param ...string) (data []string, err error) {
 		var dataItem []string
 		cacheDataBt, err := Client.Get([]byte(item))
 		if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-			dataItem, _ = rgredis.SMembers(item)
+			redisClient, _ := GetRedisClient()
+			dataItem, _ = redisClient.SMembers(item)
 			if len(dataItem) != 0 {
 				cacheDataStr, _ := rgjson.Marshel(dataItem)
 				saveCache(item, cacheDataStr)
@@ -164,7 +169,8 @@ func SDiff(param ...string) (data []string, err error) {
 		var dataItem []string
 		cacheDataBt, err := Client.Get([]byte(item))
 		if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-			dataItem, _ = rgredis.SMembers(item)
+			redisClient, _ := GetRedisClient()
+			dataItem, _ = redisClient.SMembers(item)
 			if len(dataItem) != 0 {
 				cacheDataStr, _ := rgjson.Marshel(dataItem)
 				saveCache(item, cacheDataStr)
@@ -191,7 +197,8 @@ func SUnion(param ...string) (data []string, err error) {
 		var dataItem []string
 		cacheDataBt, err := Client.Get([]byte(item))
 		if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-			dataItem, _ = rgredis.SMembers(item)
+			redisClient, _ := GetRedisClient()
+			dataItem, _ = redisClient.SMembers(item)
 			if len(dataItem) != 0 {
 				cacheDataStr, _ := rgjson.Marshel(dataItem)
 				saveCache(item, cacheDataStr)
@@ -217,7 +224,8 @@ func HGet(key string, field string) (data string, err error) {
 	hashData := make(map[string]string)
 	cacheDataBt, err := Client.Get([]byte(key))
 	if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-		hashData, _ = rgredis.HGetAll(key)
+		redisClient, _ := GetRedisClient()
+		hashData, _ = redisClient.HGetAll(key)
 		if len(hashData) != 0 {
 			cacheDataStr, _ := rgjson.Marshel(hashData)
 			saveCache(key, cacheDataStr)
@@ -241,7 +249,8 @@ func HMGet(key string, field []string) (data []interface{}, err error) {
 	hashData := make(map[string]string)
 	cacheDataBt, err := Client.Get([]byte(key))
 	if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-		hashData, _ = rgredis.HGetAll(key)
+		redisClient, _ := GetRedisClient()
+		hashData, _ = redisClient.HGetAll(key)
 		if len(hashData) != 0 {
 			cacheDataStr, _ := rgjson.Marshel(hashData)
 			saveCache(key, cacheDataStr)
@@ -266,7 +275,8 @@ func HGetAll(key string) (data map[string]string, err error) {
 	}
 	cacheDataBt, err := Client.Get([]byte(key))
 	if err != nil || len(cacheDataBt) == 0 { // <LiJunDong : 2022-06-01 14:48:33> --- 不存在
-		data, _ = rgredis.HGetAll(key)
+		redisClient, _ := GetRedisClient()
+		data, _ = redisClient.HGetAll(key)
 		if len(data) != 0 {
 			cacheDataStr, _ := rgjson.Marshel(data)
 			saveCache(key, cacheDataStr)
@@ -286,5 +296,8 @@ func saveCache(key string, data string) {
 	if data == "" || key == "" {
 		return
 	}
-	Client.Set([]byte(key), []byte(data), 0)
+	err := Client.Set([]byte(key), []byte(data), 0)
+	if err != nil {
+		rgo.This.Log.Error("本地缓存失败", err)
+	}
 }

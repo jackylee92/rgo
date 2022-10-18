@@ -2,14 +2,11 @@ package rgmsg
 
 import (
 	"errors"
-	"github/tidwall/gjson"
+	_ "github.com/jackylee92/rgo"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/util/rgwechat"
 	"gopkg.in/gomail.v2"
-	_ "rgo"
-	"rgo/core/rgconfig"
-	"rgo/core/rgjson"
-	"rgo/core/rgrequest"
-	"rgo/util/rghttp"
-	"rgo/util/rgtime"
 )
 
 /*
@@ -36,14 +33,14 @@ const (
 type Client struct {
 	This          *rgrequest.Client `json:"-"` // json解析忽略
 	Typ           msgType
-	Title         string // <LiJunDong : 2022-05-27 12:00:36> --- 公用标题
+	Title         string   // <LiJunDong : 2022-05-27 12:00:36> --- 公用标题
 	EmailTo       []string // <LiJunDong : 2022-05-27 12:01:44> --- 接受方
 	EmailCc       []string // <LiJunDong : 2022-05-27 12:01:39> --- 抄送方
-	EmailBCc      string // <LiJunDong : 2022-05-27 12:01:32> --- 秘密抄送方
-	EmailContent  string // <LiJunDong : 2022-05-27 12:02:06> --- 邮件内容
-	EmailAttach   string // <LiJunDong : 2022-05-27 12:01:32> --- 邮件附件路径
-	EmailFrom     string // <LiJunDong : 2022-05-28 15:00:08> --- 发送方
-	emailBodyType string // <LiJunDong : 2022-05-27 12:02:41> --- 邮件内容格式 默认text/html
+	EmailBCc      string   // <LiJunDong : 2022-05-27 12:01:32> --- 秘密抄送方
+	EmailContent  string   // <LiJunDong : 2022-05-27 12:02:06> --- 邮件内容
+	EmailAttach   string   // <LiJunDong : 2022-05-27 12:01:32> --- 邮件附件路径
+	EmailFrom     string   // <LiJunDong : 2022-05-28 15:00:08> --- 发送方
+	emailBodyType string   // <LiJunDong : 2022-05-27 12:02:41> --- 邮件内容格式 默认text/html
 
 	WechatContent string   // <LiJunDong : 2022-05-27 12:08:21> --- 企业微信消息中 主要内容描述
 	WechatData    []string // <LiJunDong : 2022-05-27 12:08:51> --- 企业微信中key:value形式展示在内容描述下面
@@ -119,7 +116,7 @@ func (c *Client) check() (err error) {
 	}
 	if c.Typ == WECHAT {
 		if wechatTo == "" {
-			return errors.New("企业微信地址[" +configWechatTo+ "]配置错误")
+			return errors.New("企业微信地址[" + configWechatTo + "]配置错误")
 		}
 		if c.WechatContent == "" {
 			return errors.New("企业微信消息内容[WechatContent]不能为空")
@@ -134,36 +131,18 @@ func (c *Client) check() (err error) {
 // @Author  : LiJunDong
 // @Time    : 2022-05-27
 func (c *Client) sendWechat() (err error) {
-	content := "# <font color=\"warning\">" + c.Title + "</font>\n"
-	content += "<font color=\"comment\" size=\"10\">at " + rgtime.NowDateTime() + "</font>\n"
-	content += c.WechatContent + "\n"
-	if len(c.WechatData) != 0 {
-		for _, value := range c.WechatData{
-			content += "> <font color=\"comment\" size=\"11\">" + value + "</font> \n"
-		}
+	client := rgwechat.WeClient{
+		This:    c.This,
+		Content: c.WechatData,
+		To:      wechatTo,
+		Title:   c.WechatContent,
+		Level:   rgwechat.Info,
 	}
-	param := map[string]interface{}{
-		"msgtype": "markdown",
-		"markdown": map[string]string{
-			"content": content,
-		},
+	res, err := client.Send()
+	if !res || err != nil {
+		return errors.New("发送失败")
 	}
-	paramJson, _ := rgjson.Marshel(param)
-	httpClient := rghttp.Client{
-		Url:    wechatTo,
-		Method: "POST",
-		Header: c.getWechatHeader(),
-		Param:  paramJson,
-		This: c.This,
-	}
-	data, err := httpClient.GetApi()
-	if err != nil {
-		return err
-	}
-	if gjson.Get(data, "code").Int() != 0 {
-		return errors.New(gjson.Get(data, "errmsg").String())
-	}
-	return err
+	return nil
 }
 
 // sendEmail 发送邮件
@@ -222,7 +201,7 @@ func (c *Client) getEmailBodyType() string {
 // @Return  : map[string]string
 // @Author  : LiJunDong
 // @Time    : 2022-05-28
-func (c *Client)getWechatHeader() map[string]string {
+func (c *Client) getWechatHeader() map[string]string {
 	return map[string]string{
 		"Content-Type": "application/json",
 	}

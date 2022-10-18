@@ -1,9 +1,9 @@
 package rgconfig
 
 import (
+	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
 	"io/ioutil"
 	"os"
-	"rgo/core/rgglobal/rgerror"
 	"strings"
 
 	"flag"

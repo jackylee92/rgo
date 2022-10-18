@@ -2,20 +2,19 @@ package rghttp
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
+	"github.com/jackylee92/rgo"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"rgo"
 	"strconv"
 	"strings"
 	"time"
 
-	"rgo/core/rgconfig"
-	"rgo/core/rgglobal/rgconst"
-	"rgo/core/rgrequest"
+	"github.com/jackylee92/rgo/core/rgconfig"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgrequest"
 )
 
 type Client struct {
@@ -60,7 +59,7 @@ func init() {
  */
 func (c *Client) getClient() (client *http.Client, err error) {
 	client = &http.Client{
-		Timeout:   time.Second * 10, // 超时时间
+		Timeout:   time.Second * 30, // 超时时间
 		Transport: globalTransport,
 	}
 	return client, nil
@@ -136,8 +135,8 @@ func (c *Client) getClientHeader() (req *http.Request, err error) {
 	}
 	if c.This != nil {
 		req.Header.Set(headerUniqIDKey, c.This.UniqId)
-	}else{
-		req.Header.Set(headerUniqIDKey, bootstrap.This.UniqId)
+	} else {
+		req.Header.Set(headerUniqIDKey, rgo.This.UniqId)
 	}
 	if len(c.Header) != 0 {
 		for headerTitle, headerValue := range c.Header {
@@ -175,11 +174,10 @@ func (c *Client) GetApi() (data string, err error) {
 		return "", errors.New("获取请求头失败|" + err.Error())
 	}
 	if rgconfig.GetBool(configCurlLog) {
-		logStr, _ := json.Marshal(c)
 		if c.This != nil {
-			c.This.Log.Info("HTTP请求开始|" + string(logStr))
-		}else{
-			bootstrap.This.Log.Info("HTTP请求开始|" + string(logStr))
+			c.This.Log.Info("HTTP请求开始|", c)
+		} else {
+			rgo.This.Log.Info("HTTP请求开始|", c)
 		}
 	}
 	startTimeInt := time.Now()
@@ -188,7 +186,7 @@ func (c *Client) GetApi() (data string, err error) {
 		return "", errors.New("请求失败|" + err.Error())
 	}
 	endTimeInt := time.Now()
-	processTime := (endTimeInt.UnixNano() - startTimeInt.UnixNano()) / 1000000 // 纳秒转毫秒
+	processTime := (endTimeInt.UnixNano() - startTimeInt.UnixNano()) / 1000000 // 纳秒转毫秒 1000毫秒=1秒
 	c.duration = processTime
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -196,11 +194,11 @@ func (c *Client) GetApi() (data string, err error) {
 		return "", errors.New("请求返回数据处理失败|" + err.Error())
 	}
 	if rgconfig.GetBool(configCurlLog) {
-		logStr, _ := json.Marshal(map[string]interface{}{"url": c.Url, "httpStatus": resp.StatusCode, "body": string(body), "duration": c.duration})
+		logStr := map[string]interface{}{"url": c.Url, "httpStatus": resp.StatusCode, "body": string(body), "duration": c.duration}
 		if c.This != nil {
-			c.This.Log.Info("HTTP请求结束|" + string(logStr))
-		}else{
-			bootstrap.This.Log.Info("HTTP请求结束|" + string(logStr))
+			c.This.Log.Info("HTTP请求结束", logStr)
+		} else {
+			rgo.This.Log.Info("HTTP请求结束", logStr)
 		}
 	}
 	if resp.StatusCode != 200 {

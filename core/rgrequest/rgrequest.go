@@ -2,17 +2,17 @@ package rgrequest
 
 import (
 	"bytes"
-	"go.opentelemetry.io/otel/bridge/opentracing"
+	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgmysql"
 	"io/ioutil"
-	"rgo/core/rgglobal/rgconst"
 	"time"
 
-	"rgo/core/rgjaerger"
-	"rgo/core/rglog"
-	"rgo/core/rgmodel/rgmysql"
-	"rgo/core/rgresponse"
+	"github.com/jackylee92/rgo/core/rgjaerger"
+	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/jackylee92/rgo/core/rgresponse"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
 	"github.com/rs/xid"
 )
 
