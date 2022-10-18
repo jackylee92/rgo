@@ -63,7 +63,7 @@ func (c *WeClient) getContent() (content string) {
 	}
 	content = "# <font color=\"comment\" size=\"11\">【 " + rgenv.GetEnv() + "】</font>\n"
 	content += "# <font size=\"16\" color=\"" + msgType + "\"> " + c.Title + "</font>\n"
-	content += "<font color=\"comment\" size=\"10\">at " + rgtime.NowDateTime() + "</font>\n"
+	content += "<font color=\"comment\" size=\"10\">at " + rgtime.NowTime() + "</font>\n"
 	if len(c.Content) != 0 {
 		for _, value := range c.Content {
 			content += "> <font color=\"comment\" size=\"13\">" + value + "</font> \n"
