@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"testing"
 
 	"flag"
 
@@ -92,10 +93,13 @@ var Config BaseConfig
  */
 func loadBaseConfig() {
 	// <LiJunDong : 2022-05-12 22:46:19> --- 适配args为config需要的格式
-	oldArgs := parse()
+	//oldArgs := parse()
+	//flag.Parse()
+	//// <LiJunDong : 2022-05-12 22:46:19> --- 还原原来的args
+	//
+	//os.Args = oldArgs
+	testing.Init()
 	flag.Parse()
-	// <LiJunDong : 2022-05-12 22:46:19> --- 还原原来的args
-	os.Args = oldArgs
 	if *configPath == "" {
 		panic(rgerror.ErrorStartConfigExists)
 	}
@@ -112,7 +116,7 @@ func loadBaseConfig() {
 		panic(rgerror.ErrorConfigParse + ":" + err.Error())
 	}
 	if Config.Config != "apollo" && Config.Config != "file" {
-		panic( rgerror.ErrorConfigTypeExist + ":" + Config.Config)
+		panic(rgerror.ErrorConfigTypeExist + ":" + Config.Config)
 	}
 	return
 }
