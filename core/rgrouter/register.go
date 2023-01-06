@@ -69,6 +69,12 @@ func InitTrans() (err error) {
 		Validate.RegisterTagNameFunc(func(field reflect.StructField) string {
 			label := field.Tag.Get("label")
 			if label == "" {
+				label = field.Tag.Get("json")
+			}
+			if label == "" {
+				label = field.Tag.Get("form")
+			}
+			if label == "" {
 				return field.Name
 			}
 			return label
