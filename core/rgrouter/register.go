@@ -3,10 +3,11 @@ package rgrouter
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"github.com/jackylee92/rgo/core/rgconfig"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"github.com/jackylee92/rgo/core/rglog"
+	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin/binding"
@@ -64,6 +65,14 @@ func InitTrans() (err error) {
 		for key, item := range registerMessageMap {
 			_ = Validate.RegisterTranslation(key, Trans, item.RegisterFn, item.TranslationFn)
 		}
+
+		Validate.RegisterTagNameFunc(func(field reflect.StructField) string {
+			label := field.Tag.Get("label")
+			if label == "" {
+				return field.Name
+			}
+			return label
+		})
 		// 注册翻译器
 		switch locale {
 		case "en":
