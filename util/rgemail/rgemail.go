@@ -29,7 +29,7 @@ func (e EmailClient) getHost() string {
 	if e.Host == "" {
 		return "smtp.mxhichina.com"
 	}
-	return ""
+	return e.Host
 }
 func (e EmailClient) getPort() int {
 	if e.Port <= 0 {
@@ -93,6 +93,9 @@ func (e EmailClient) check() error {
 	}
 	if e.Title == "" {
 		return errors.New("请配置邮件标题")
+	}
+	if e.Host == "" {
+		return errors.New("请配置邮件Host")
 	}
 	if len(e.To) <= 0 {
 		return errors.New("请配置发送者")
