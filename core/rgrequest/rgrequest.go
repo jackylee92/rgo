@@ -5,6 +5,8 @@ import (
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"github.com/jackylee92/rgo/core/rgmysql"
 	"io/ioutil"
+	"net/http/httputil"
+	"net/url"
 	"time"
 
 	"github.com/jackylee92/rgo/core/rgjaerger"
@@ -109,4 +111,21 @@ func GetUniqId(c *gin.Context) string {
 	} else {
 		return value.(string)
 	}
+}
+
+func (c *Client) Proxy(scheme, host, path string) (err error) {
+	var target = scheme + "://" + host + path
+	proxyUrl, err := url.Parse(target)
+	if err != nil {
+		c.Log.Error("代理失败", target, err)
+		return err
+	}
+	proxyUrl.Scheme = scheme
+	proxyUrl.Host = host
+	c.Ctx.Request.Host = host
+	c.Ctx.Request.URL.Path = path
+	proxy := httputil.NewSingleHostReverseProxy(proxyUrl)
+	proxy.ServeHTTP(c.Ctx.Writer, c.Ctx.Request)
+	c.Log.Info("代理结束", target)
+	return err
 }
