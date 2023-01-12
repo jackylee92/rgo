@@ -113,6 +113,7 @@ func GetUniqId(c *gin.Context) string {
 	}
 }
 
+// Proxy <LiJunDong : 2023-01-12 15:14:07> --- 请求代理转发
 func (c *Client) Proxy(scheme, host, path string) (err error) {
 	var target = scheme + "://" + host + path
 	proxyUrl, err := url.Parse(target)
