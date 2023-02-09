@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -205,4 +206,31 @@ func (c *Client) GetApi() (data string, err error) {
 		return "", errors.New("请求相应HttpCode异常" + strconv.Itoa(resp.StatusCode))
 	}
 	return string(body), nil
+}
+
+/*
+ * @Content : common
+ * @Author  : LiJunDong
+ * @Time    : 2023-01-10$
+ */
+
+// Proxy 转发
+// @Param   : scheme: "http" host:"127.0.0.1" path:"/api/get"
+// @Return  : nil
+// @Author  : LiJunDong
+// @Time    : 2023-02-09
+func (c *Client) Proxy(scheme, host, path string) {
+	target := scheme + "://" + host
+	proxyUrl, err := url.Parse(target)
+	if err != nil {
+		c.This.Log.Error("代理失败", target)
+		return
+	}
+	proxyUrl.Scheme = scheme
+	proxyUrl.Host = host
+	c.This.Ctx.Request.Host = host
+	c.This.Ctx.Request.URL.Path = path
+	proxy := httputil.NewSingleHostReverseProxy(proxyUrl)
+	proxy.ServeHTTP(c.This.Ctx.Writer, c.This.Ctx.Request)
+	c.This.Log.Info("proxy", "代理结束", target)
 }

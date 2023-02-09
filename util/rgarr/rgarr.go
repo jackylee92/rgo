@@ -205,3 +205,29 @@ func KeyInt64MapExist(key int64, mapData map[int64]int64) (res bool) {
 		return false
 	}
 }
+
+func Int64SliceToStringSlice(param []int64) (data []string) {
+	if len(param) == 0 {
+		return data
+	}
+	data = make([]string, 0, len(param))
+	for _, item := range param {
+		data = append(data, strconv.Itoa(int(item)))
+	}
+	return data
+}
+
+func StringSliceToInt64Slice(param []string) (data []int64) {
+	if len(param) == 0 {
+		return data
+	}
+	data = make([]int64, 0, len(param))
+	for _, item := range param {
+		value, err := strconv.Atoi(item)
+		if err != nil {
+			continue
+		}
+		data = append(data, int64(value))
+	}
+	return data
+}

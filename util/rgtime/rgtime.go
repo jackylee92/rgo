@@ -58,3 +58,10 @@ func DateIntToDate(param int64, format string) string {
 	tmp := time.Unix(param, 0)
 	return tmp.Format(format)
 }
+
+func NowTimeChange(years, months, days int) (newTimeStr string) {
+	t := time.Now()                           // 获取当前时间
+	newTime := t.AddDate(years, months, days) // 前一个月的日期
+	newTimeStr = DateIntToDate(newTime.Unix(), rgconst.GoTimeFormat)
+	return newTimeStr
+}
