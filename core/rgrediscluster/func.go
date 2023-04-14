@@ -8,28 +8,28 @@ import (
 	"github.com/go-redis/redis"
 )
 
-/*
+/*Get
 * @Content : string类型 获取
 * @Param   :
 * @Return  :
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)Get(key string) (string, error) {
+func (client *Client) Get(key string) (string, error) {
 	data, err := client.linkObj.Get(key).Result()
 	return data, err
 }
 
-/*
+/*Setex
 * @Content : 设置可以有失效时间的string类型 t可以不传
 * @Param   :
 * @Return  :
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)Setex(key string, val string, t time.Duration) (bool, error) {
+func (client *Client) Setex(key string, val string, t time.Duration) (bool, error) {
 	if client.linkObj == nil {
-		return false,errors.New(rgerror.ErrorRedisClientNil)
+		return false, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	if key == "" {
 		err := errors.New("redis设置有失效时间的string类型结果失败")
@@ -54,9 +54,9 @@ func (client *Client)Setex(key string, val string, t time.Duration) (bool, error
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)Setnx(key string, val string, t time.Duration) (bool, error) {
+func (client *Client) Setnx(key string, val string, t time.Duration) (bool, error) {
 	if client.linkObj == nil {
-		return false,errors.New(rgerror.ErrorRedisClientNil)
+		return false, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	if key == "" {
 		err := errors.New("Redis设置不存在的key结果失败，key为空")
@@ -82,7 +82,7 @@ func (client *Client)Setnx(key string, val string, t time.Duration) (bool, error
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)Del(key string) bool {
+func (client *Client) Del(key string) bool {
 	if client.linkObj == nil {
 		return false
 	}
@@ -103,9 +103,9 @@ func (client *Client)Del(key string) bool {
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)Incrby(key string, value int64) (int64, error) {
+func (client *Client) Incrby(key string, value int64) (int64, error) {
 	if client.linkObj == nil {
-		return 0,errors.New(rgerror.ErrorRedisClientNil)
+		return 0, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.IncrBy(key, value).Result()
 }
@@ -117,9 +117,9 @@ func (client *Client)Incrby(key string, value int64) (int64, error) {
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)LPop(key string) (string, error) {
+func (client *Client) LPop(key string) (string, error) {
 	if client.linkObj == nil {
-		return "",errors.New(rgerror.ErrorRedisClientNil)
+		return "", errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.LPop(key).Result()
 }
@@ -131,9 +131,9 @@ func (client *Client)LPop(key string) (string, error) {
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)RPop(key string) (string, error) {
+func (client *Client) RPop(key string) (string, error) {
 	if client.linkObj == nil {
-		return "",errors.New(rgerror.ErrorRedisClientNil)
+		return "", errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.RPop(key).Result()
 }
@@ -145,9 +145,9 @@ func (client *Client)RPop(key string) (string, error) {
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)LPush(key string, value string) (int64, error) {
+func (client *Client) LPush(key string, value string) (int64, error) {
 	if client.linkObj == nil {
-		return 0,errors.New(rgerror.ErrorRedisClientNil)
+		return 0, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.LPush(key, value).Result()
 }
@@ -159,9 +159,9 @@ func (client *Client)LPush(key string, value string) (int64, error) {
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)RPush(key string, value string) (int64, error) {
+func (client *Client) RPush(key string, value string) (int64, error) {
 	if client.linkObj == nil {
-		return 0,errors.New(rgerror.ErrorRedisClientNil)
+		return 0, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.RPush(key, value).Result()
 }
@@ -173,9 +173,9 @@ func (client *Client)RPush(key string, value string) (int64, error) {
 * @Author  : LiJunDong
 * @Time    : 2021-09-09
  */
-func (client *Client)LRange(key string, start int64, end int64) (res []string,err error) {
+func (client *Client) LRange(key string, start int64, end int64) (res []string, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.LRange(key, start, end).Result()
 }
@@ -187,9 +187,9 @@ func (client *Client)LRange(key string, start int64, end int64) (res []string,er
 * @Author  : LiJunDong
 * @Time    : 2021-10-20
  */
-func (client *Client)Expire(key string, t time.Duration) (bool, error) {
+func (client *Client) Expire(key string, t time.Duration) (bool, error) {
 	if client.linkObj == nil {
-		return false,errors.New(rgerror.ErrorRedisClientNil)
+		return false, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.Expire(key, t).Result()
 }
@@ -201,9 +201,9 @@ func (client *Client)Expire(key string, t time.Duration) (bool, error) {
 * @Author  : LiJunDong
 * @Time    : 2021-11-05
  */
-func (client *Client)HSet(table, field string, value interface{}) (bool, error) {
+func (client *Client) HSet(table, field string, value interface{}) (bool, error) {
 	if client.linkObj == nil {
-		return false,errors.New(rgerror.ErrorRedisClientNil)
+		return false, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.HSet(table, field, value).Result()
 }
@@ -215,9 +215,9 @@ func (client *Client)HSet(table, field string, value interface{}) (bool, error) 
 * @Author  : LiJunDong
 * @Time    : 2021-11-11
  */
-func (client *Client)SAdd(key string, param ...interface{}) (res int64,err error) {
+func (client *Client) SAdd(key string, param ...interface{}) (res int64, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.SAdd(key, param...).Result()
 }
@@ -229,9 +229,9 @@ func (client *Client)SAdd(key string, param ...interface{}) (res int64,err error
 * @Author  : LiJunDong
 * @Time    : 2021-11-11
  */
-func (client *Client)SRem(key string, param ...interface{}) (res int64,err error) {
+func (client *Client) SRem(key string, param ...interface{}) (res int64, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.SRem(key, param...).Result()
 }
@@ -243,9 +243,9 @@ func (client *Client)SRem(key string, param ...interface{}) (res int64,err error
 * @Author  : LiJunDong
 * @Time    : 2021-11-11
  */
-func (client *Client)SMembers(key string) (res []string,err error) {
+func (client *Client) SMembers(key string) (res []string, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.SMembers(key).Result()
 }
@@ -257,9 +257,9 @@ func (client *Client)SMembers(key string) (res []string,err error) {
 * @Author  : LiJunDong
 * @Time    : 2021-11-26
  */
-func (client *Client)HIncrby(key, field string, value int64) (res int64,err error) {
+func (client *Client) HIncrby(key, field string, value int64) (res int64, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.HIncrBy(key, field, value).Result()
 }
@@ -271,9 +271,9 @@ func (client *Client)HIncrby(key, field string, value int64) (res int64,err erro
 * @Author  : LiJunDong
 * @Time    : 2021-11-29
  */
-func (client *Client)HGet(key string, field string) (res string,err error) {
+func (client *Client) HGet(key string, field string) (res string, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.HGet(key, field).Result()
 }
@@ -285,9 +285,9 @@ func (client *Client)HGet(key string, field string) (res string,err error) {
 * @Author  : LiJunDong
 * @Time    : 2022-02-18
  */
-func (client *Client)HDel(key string, field string) (res int64,err error) {
+func (client *Client) HDel(key string, field string) (res int64, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.HDel(key, field).Result()
 }
@@ -299,9 +299,9 @@ func (client *Client)HDel(key string, field string) (res int64,err error) {
 * @Author  : LiJunDong
 * @Time    : 2021-11-29
  */
-func (client *Client)HMGet(key string, field []string) (res []interface{},err error) {
+func (client *Client) HMGet(key string, field []string) (res []interface{}, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	field = unique(field)
 	return client.linkObj.HMGet(key, field...).Result()
@@ -314,9 +314,9 @@ func (client *Client)HMGet(key string, field []string) (res []interface{},err er
 * @Author  : LiJunDong
 * @Time    : 2021-11-29
  */
-func (client *Client)HGetAll(key string) (res map[string]string,err error) {
+func (client *Client) HGetAll(key string) (res map[string]string, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.HGetAll(key).Result()
 }
@@ -328,9 +328,9 @@ func (client *Client)HGetAll(key string) (res map[string]string,err error) {
 * @Author  : LiJunDong
 * @Time    : 2021-11-29
  */
-func (client *Client)HMSet(key string, fields map[string]interface{}) (res string,err error) {
+func (client *Client) HMSet(key string, fields map[string]interface{}) (res string, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.HMSet(key, fields).Result()
 }
@@ -360,52 +360,51 @@ func unique(param []string) (data []string) {
 	return param[:cut]
 }
 
-func (client *Client)ZrangeByScore(key string, min string, max string, offset int64, count int64) (res []string,err error) {
+func (client *Client) ZrangeByScore(key string, min string, max string, offset int64, count int64) (res []string, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.ZRangeByScore(key, redis.ZRangeBy{Min: min, Max: max, Offset: offset, Count: count}).Result()
 }
 
-func (client *Client)Zrank(key string, member string) (res int64,err error) {
+func (client *Client) Zrank(key string, member string) (res int64, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.ZRank(key, member).Result()
 }
 
-func (client *Client)Zscore(key string, member string) (res float64,err error) {
+func (client *Client) Zscore(key string, member string) (res float64, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.ZScore(key, member).Result()
 }
 
-
-func (client *Client)Zadd(key string, score float64, member string) (res int64,err error) {
+func (client *Client) Zadd(key string, score float64, member string) (res int64, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
-	return client.linkObj.ZAdd(key,redis.Z{Member: member,Score: score}).Result()
+	return client.linkObj.ZAdd(key, redis.Z{Member: member, Score: score}).Result()
 }
 
-func (client *Client)SetPersist(key string) (res bool,err error) {
+func (client *Client) SetPersist(key string) (res bool, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.Persist(key).Result()
 }
 
-func (client *Client)HKeys(key string) (res []string,err error) {
+func (client *Client) HKeys(key string) (res []string, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.HKeys(key).Result()
 }
 
-func (client *Client)SIsMember(key string, member interface{})(res bool, err error){
+func (client *Client) SIsMember(key string, member interface{}) (res bool, err error) {
 	if client.linkObj == nil {
-		return res,errors.New(rgerror.ErrorRedisClientNil)
+		return res, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	return client.linkObj.SIsMember(key, member).Result()
 }

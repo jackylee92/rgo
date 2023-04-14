@@ -47,6 +47,7 @@ func returnJson(Context *gin.Context, dataCode int64, data, msg interface{}) {
 	var ginReturnData gin.H
 	ginReturnData = returnData
 	//Context.Header("key2020","value2020")     //可以根据实际情况在头部添加额外的其他信息
+	Context.Header(rgconst.ContextUniqIDKey, Context.GetString(rgconst.ContextUniqIDKey)) //可以根据实际情况在头部添加额外的其他信息
 	Context.JSON(http.StatusOK, ginReturnData)
 	Context.Abort()
 }
@@ -55,7 +56,7 @@ func returnJson(Context *gin.Context, dataCode int64, data, msg interface{}) {
 
 // 语法糖函数封装
 
-//系统异常
+// 系统异常
 func SystemError(c *gin.Context, data interface{}) {
 	returnJson(c, http.StatusInternalServerError, data, nil)
 }

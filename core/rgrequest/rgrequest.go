@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"github.com/jackylee92/rgo/core/rgmysql"
-	"io/ioutil"
+	"io"
+	"net/http/httputil"
+	"net/url"
 	"time"
 
 	"github.com/jackylee92/rgo/core/rgjaerger"
@@ -61,13 +63,6 @@ func Get(c *gin.Context) *Client {
 	}
 }
 
-/*
-* @Content : 获取post json
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-28
- */
 func GetPostJson(c *gin.Context) (data string) {
 	dataInterface, ok := c.Get("post_json")
 	if ok {
@@ -75,12 +70,12 @@ func GetPostJson(c *gin.Context) (data string) {
 	}
 	var bodyBytes []byte
 	// 从原有Request.Body读取
-	bodyBytes, err := ioutil.ReadAll(c.Request.Body)
+	bodyBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		return data
 	}
 	// 新建缓冲区并替换原有Request.body
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	data = string(bodyBytes)
 	c.Set("post_json", data)
 	return data
@@ -109,4 +104,22 @@ func GetUniqId(c *gin.Context) string {
 	} else {
 		return value.(string)
 	}
+}
+
+// Proxy <LiJunDong : 2023-01-12 15:14:07> --- 请求代理转发
+func (c *Client) Proxy(scheme, host, path string) (err error) {
+	var target = scheme + "://" + host + path
+	proxyUrl, err := url.Parse(target)
+	if err != nil {
+		c.Log.Error("代理失败", target, err)
+		return err
+	}
+	proxyUrl.Scheme = scheme
+	proxyUrl.Host = host
+	c.Ctx.Request.Host = host
+	c.Ctx.Request.URL.Path = path
+	proxy := httputil.NewSingleHostReverseProxy(proxyUrl)
+	proxy.ServeHTTP(c.Ctx.Writer, c.Ctx.Request)
+	c.Log.Info("代理结束", target)
+	return err
 }

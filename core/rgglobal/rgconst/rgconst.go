@@ -22,6 +22,9 @@ const (
 
 	//  <LiJunDong : 2022-06-18 14:11:50> --- 心跳的url
 	ConfigHeartBeatUrl string = "elb-status"
+	//  <LiJunDong : 2022-06-18 14:11:50> --- 设置日志级别
+	ConfigSetLogLevelUrl string = "setLogLevel"
+	ConfigGetLogLevelUrl string = "getLogLevel"
 
 	// <LiJunDong : 2022-03-28 11:24:00> --- 系统配置文件名
 	ConfigKeyLogLevel             string = "sys_log_level"               // 日志级别
@@ -45,8 +48,8 @@ const (
 	ConfigReturnUniqId            string = "sys_return_uniqid"           // 是否返回uniqid
 	ConfigMysqlLog                string = "sys_mysql_log"               // mysql日志级别
 	ConfigMysqlMaxOpenConns       string = "sys_mysql_max_open_conns"    // mysql初始化连接数
-	ConfigMysqlMaxIdleConns       string = "sys_mysql_max_idle_conns"               // mysql最大连接数
-	ConfigMysqlMaxLifetime        string = "sys_mysql_max_life_time"               // mysql链接生命时长
+	ConfigMysqlMaxIdleConns       string = "sys_mysql_max_idle_conns"    // mysql最大连接数
+	ConfigMysqlMaxLifetime        string = "sys_mysql_max_life_time"     // mysql链接生命时长
 	ConfigLogDir                  string = "sys_log_dir"                 // 日志目录
 	ConfigPProf                   string = "sys_pprof"                   // pprof开启关闭
 )

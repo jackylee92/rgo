@@ -1,6 +1,7 @@
 package rgrouter
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/jackylee92/rgo/core/rgconfig"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
@@ -11,8 +12,7 @@ import (
 	"github.com/jackylee92/rgo/core/rgmiddleware/recovery"
 	"github.com/jackylee92/rgo/core/rgmiddleware/requestlog"
 	"github.com/jackylee92/rgo/core/rgpprof"
-	"github.com/gin-gonic/gin"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -24,7 +24,7 @@ import (
 * @Time    : 2022-03-01
  */
 func NewRouter() *gin.Engine {
-	InitTrans()
+	_ = InitTrans()
 	router := &gin.Engine{}
 	if rgconfig.GetBool(rgconst.ConfigKeyDebug) {
 		gin.SetMode(gin.ReleaseMode) // <LiJunDong : 2022-06-02 18:26:14> --- 关闭gin的很长一段提示信息
@@ -32,14 +32,16 @@ func NewRouter() *gin.Engine {
 		rglog.SystemInfo("启动项【debug】:成功")
 	} else {
 		gin.SetMode(gin.ReleaseMode)
-		gin.DefaultWriter = ioutil.Discard
+		gin.DefaultWriter = io.Discard
 		router = gin.New()
 	}
 	if rgconfig.GetBool(rgconst.ConfigKeyHttpAllowCrossDomain) {
 		router.Use(crossdomain.Handle()) // 跨域
 	}
 	router.Use(jeager.Handle(), requestlog.Handle(), recovery.Handle(), container.Handle())
-	router.GET("/" + rgconst.ConfigHeartBeatUrl, HeartBeatHandle) // 健康检查
+	router.GET("/"+rgconst.ConfigHeartBeatUrl, HeartBeatHandle)     // 健康检查
+	router.GET("/"+rgconst.ConfigSetLogLevelUrl, SetLogLevelHandle) // 设置日志级别
+	router.GET("/"+rgconst.ConfigGetLogLevelUrl, GetLogLevelHandle) // 获取日志级别
 
 	router.NoRoute(func(c *gin.Context) { c.String(http.StatusNotFound, rgerror.Curl404Error) })
 
