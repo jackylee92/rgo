@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 跨域
 func Handle() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method

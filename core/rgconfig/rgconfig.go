@@ -2,9 +2,7 @@ package rgconfig
 
 import (
 	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
-	"io/ioutil"
 	"os"
-	"strings"
 	"testing"
 
 	"flag"
@@ -60,7 +58,7 @@ func Start() {
 	if configPool.Load() == nil {
 		panic("配置启动失败，无[" + Config.Config + "]加载方法为空")
 	}
-	configPool.Load()()
+	_ = configPool.Load()()
 }
 
 type BaseConfig struct {
@@ -107,7 +105,7 @@ func loadBaseConfig() {
 		panic(rgerror.ErrorConfigExist + ":" + *configPath)
 	}
 	var err error
-	configByte, err = ioutil.ReadFile(*configPath)
+	configByte, err = os.ReadFile(*configPath)
 	if err != nil {
 		panic(rgerror.ErrorBaseConfig + ":" + err.Error())
 	}
@@ -139,23 +137,23 @@ func ReadFile() []byte {
 * @Author  : LiJunDong
 * @Time    : 2022-05-12
  */
-func parse() []string {
-	oldArgs := os.Args
-	newArgs := make([]string, 0, 2)
-	if len(os.Args) > 0 {
-		newArgs = append(newArgs, os.Args[0])
-	}
-	for key, item := range os.Args {
-		if key == 0 {
-			continue
-		}
-		if strings.Contains(item, "-config") {
-			newArgs = append(newArgs, item)
-			break
-		}
-	}
-	if len(newArgs) == 2 {
-		os.Args = newArgs
-	}
-	return oldArgs
-}
+//func parse() []string {
+//	oldArgs := os.Args
+//	newArgs := make([]string, 0, 2)
+//	if len(os.Args) > 0 {
+//		newArgs = append(newArgs, os.Args[0])
+//	}
+//	for key, item := range os.Args {
+//		if key == 0 {
+//			continue
+//		}
+//		if strings.Contains(item, "-config") {
+//			newArgs = append(newArgs, item)
+//			break
+//		}
+//	}
+//	if len(newArgs) == 2 {
+//		os.Args = newArgs
+//	}
+//	return oldArgs
+//}

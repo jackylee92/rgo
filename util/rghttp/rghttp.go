@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"github.com/jackylee92/rgo"
-	"io/ioutil"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httputil"
@@ -23,6 +23,7 @@ type Client struct {
 	Method   string
 	Header   map[string]string
 	Url      string
+	Timeout  int               // 超时时间，如果没天默认10秒
 	This     *rgrequest.Client `json:"-"` // json解析忽略
 	duration int64             // 请求耗时 毫秒
 }
@@ -30,6 +31,7 @@ type Client struct {
 const (
 	headerUniqIDKey = rgconst.ContextUniqIDKey
 	configCurlLog   = "util_curl_log" // curl日志是否开启记录
+	defaultTimeOut  = 10              // 默认超时时间
 )
 
 var globalTransport *http.Transport
@@ -58,9 +60,9 @@ func init() {
  * @Author  : LiJunDong
  * @Time    : i
  */
-func (c *Client) getClient() (client *http.Client, err error) {
+func (i *Client) getClient() (client *http.Client, err error) {
 	client = &http.Client{
-		Timeout:   time.Second * 30, // 超时时间
+		Timeout:   time.Second * time.Duration(i.Timeout), // 超时时间
 		Transport: globalTransport,
 	}
 	return client, nil
@@ -80,106 +82,107 @@ func (c *Client) getClient() (client *http.Client, err error) {
  * @Author  : LiJunDong
  * @Time    : 2020/7/22
  */
-func (c *Client) getClientHeader() (req *http.Request, err error) {
-	if c.Method == "POST" {
-		switch c.Param.(type) {
+func (i *Client) getClientHeader() (req *http.Request, err error) {
+	if i.Method == "POST" {
+		switch i.Param.(type) {
 		case []byte:
-			if value, ok := c.Param.([]byte); ok {
+			if value, ok := i.Param.([]byte); ok {
 				param := bytes.NewBuffer(value)
-				req, err = http.NewRequest(c.Method, c.Url, param)
+				req, err = http.NewRequest(i.Method, i.Url, param)
 			} else {
 				return req, errors.New("请求参数异常")
 			}
 		case string:
-			newValue1, ok := c.Param.(string)
+			newValue1, ok := i.Param.(string)
 			if !ok {
 				return req, errors.New("请求参数异常")
 			}
 			value := []byte(newValue1)
 			param := bytes.NewBuffer(value)
-			req, err = http.NewRequest(c.Method, c.Url, param)
+			req, err = http.NewRequest(i.Method, i.Url, param)
 			// <LiJunDong : 2021-10-09 11:23:51> --- 其他form格式可以断言后再添加
 		case url.Values:
-			newParam, ok := c.Param.(url.Values)
+			newParam, ok := i.Param.(url.Values)
 			if !ok {
 				return req, errors.New("请求表单异常")
 			}
 			param := strings.NewReader(newParam.Encode())
 
-			req, err = http.NewRequest(c.Method, c.Url, param)
+			req, err = http.NewRequest(i.Method, i.Url, param)
 		case map[string]string:
-			newParam, ok := c.Param.(map[string]string)
+			newParam, ok := i.Param.(map[string]string)
 			if !ok {
 				return req, errors.New("请求数组异常")
 			}
 			param := new(bytes.Buffer)
 			w := multipart.NewWriter(param)
 			for k, v := range newParam {
-				w.WriteField(k, v)
+				_ = w.WriteField(k, v)
 			}
-			w.Close()
-			req, err = http.NewRequest(c.Method, c.Url, param)
+			_ = w.Close()
+			req, err = http.NewRequest(i.Method, i.Url, param)
 			req.Header.Set("Content-Type", w.FormDataContentType())
 
 		default:
 			return req, errors.New("参数类型错误")
 		}
-	} else if c.Method == "GET" {
-		req, err = http.NewRequest(c.Method, c.Url, nil)
-	} else if c.Method == "DELETE" {
-		req, err = http.NewRequest(c.Method, c.Url, nil)
+	} else if i.Method == "GET" {
+		req, err = http.NewRequest(i.Method, i.Url, nil)
+	} else if i.Method == "DELETE" {
+		req, err = http.NewRequest(i.Method, i.Url, nil)
 	} else {
-		return req, errors.New("Method错误|" + c.Method)
+		return req, errors.New("Method错误|" + i.Method)
 	}
 	if err != nil {
 		return req, errors.New("请求参数设置异常|" + err.Error())
 	}
-	if c.This != nil {
-		req.Header.Set(headerUniqIDKey, c.This.UniqId)
+	if i.This != nil {
+		req.Header.Set(headerUniqIDKey, i.This.UniqId)
 	} else {
 		req.Header.Set(headerUniqIDKey, rgo.This.UniqId)
 	}
-	if len(c.Header) != 0 {
-		for headerTitle, headerValue := range c.Header {
+	if len(i.Header) != 0 {
+		for headerTitle, headerValue := range i.Header {
 			req.Header.Set(headerTitle, headerValue)
 		}
 	}
 	return req, nil
 }
 
-/*
- * @Content : http请求
- * @Param   : nil
- * @Return  : string
- * @Author  : LiJunDong
- * @Time    : 2020/7/22
- */
-func (c *Client) GetApi() (data string, err error) {
-	if c.Url == "" {
+func (i *Client) GetApi() (data string, err error) {
+	if i.Url == "" {
 		return "", errors.New("URL不能为空")
 	}
-	if c.Method == "" {
-		return "", errors.New("Method不能为空")
+	if i.Method == "" {
+		return "", errors.New("method不能为空")
 	}
 	maxReqCh <- struct{}{}
 	defer func() {
 		<-maxReqCh
 	}()
-	client, err := c.getClient()
+	if i.This == nil {
+		i.This = rgo.This
+	}
+	i.addUniqId()
+	if i.Timeout == 0 {
+		i.Timeout = defaultTimeOut
+	}
+	client, err := i.getClient()
 	if err != nil {
 		return "", errors.New("获取请求客户端失败|" + err.Error())
 	}
 	//获取请求头
-	req, err := c.getClientHeader()
+	req, err := i.getClientHeader()
 	if err != nil {
 		return "", errors.New("获取请求头失败|" + err.Error())
 	}
 	if rgconfig.GetBool(configCurlLog) {
-		if c.This != nil {
-			c.This.Log.Info("HTTP请求开始|", c)
-		} else {
-			rgo.This.Log.Info("HTTP请求开始|", c)
-		}
+		defer func() {
+			i.This.Log.Info("CURL", i.duration, i.Url, i.Method, i.Timeout, i.Param, "RESULT: "+data, err)
+			if err != nil {
+				i.This.Log.Error("请求失败", err)
+			}
+		}()
 	}
 	startTimeInt := time.Now()
 	resp, err := client.Do(req)
@@ -188,16 +191,20 @@ func (c *Client) GetApi() (data string, err error) {
 	}
 	endTimeInt := time.Now()
 	processTime := (endTimeInt.UnixNano() - startTimeInt.UnixNano()) / 1000000 // 纳秒转毫秒 1000毫秒=1秒
-	c.duration = processTime
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	i.duration = processTime
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			i.This.Log.Error("请求结束关闭链接失败", i.Url, err)
+		}
+	}()
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", errors.New("请求返回数据处理失败|" + err.Error())
 	}
 	if rgconfig.GetBool(configCurlLog) {
-		logStr := map[string]interface{}{"url": c.Url, "httpStatus": resp.StatusCode, "body": string(body), "duration": c.duration}
-		if c.This != nil {
-			c.This.Log.Info("HTTP请求结束", logStr)
+		logStr := map[string]interface{}{"url": i.Url, "httpStatus": resp.StatusCode, "body": string(body), "duration": i.duration}
+		if i.This != nil {
+			i.This.Log.Info("HTTP请求结束", logStr)
 		} else {
 			rgo.This.Log.Info("HTTP请求结束", logStr)
 		}
@@ -219,18 +226,29 @@ func (c *Client) GetApi() (data string, err error) {
 // @Return  : nil
 // @Author  : LiJunDong
 // @Time    : 2023-02-09
-func (c *Client) Proxy(scheme, host, path string) {
+func (i *Client) Proxy(scheme, host, path string) {
 	target := scheme + "://" + host
 	proxyUrl, err := url.Parse(target)
 	if err != nil {
-		c.This.Log.Error("代理失败", target)
+		i.This.Log.Error("代理失败", target)
 		return
 	}
 	proxyUrl.Scheme = scheme
 	proxyUrl.Host = host
-	c.This.Ctx.Request.Host = host
-	c.This.Ctx.Request.URL.Path = path
+	i.This.Ctx.Request.Host = host
+	i.This.Ctx.Request.URL.Path = path
 	proxy := httputil.NewSingleHostReverseProxy(proxyUrl)
-	proxy.ServeHTTP(c.This.Ctx.Writer, c.This.Ctx.Request)
-	c.This.Log.Info("proxy", "代理结束", target)
+	proxy.ServeHTTP(i.This.Ctx.Writer, i.This.Ctx.Request)
+	i.This.Log.Info("proxy", "代理结束", target)
+}
+
+func (i *Client) addUniqId() {
+	hasParam := strings.Index(i.Url, "?")
+	if hasParam == -1 {
+		i.Url += "?"
+	} else {
+		i.Url += "&"
+	}
+	i.Url += headerUniqIDKey + "=" + i.This.UniqId
+	return
 }

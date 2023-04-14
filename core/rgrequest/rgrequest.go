@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"github.com/jackylee92/rgo/core/rgmysql"
-	"io/ioutil"
+	"io"
 	"net/http/httputil"
 	"net/url"
 	"time"
@@ -63,13 +63,6 @@ func Get(c *gin.Context) *Client {
 	}
 }
 
-/*
-* @Content : 获取post json
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-28
- */
 func GetPostJson(c *gin.Context) (data string) {
 	dataInterface, ok := c.Get("post_json")
 	if ok {
@@ -77,12 +70,12 @@ func GetPostJson(c *gin.Context) (data string) {
 	}
 	var bodyBytes []byte
 	// 从原有Request.Body读取
-	bodyBytes, err := ioutil.ReadAll(c.Request.Body)
+	bodyBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		return data
 	}
 	// 新建缓冲区并替换原有Request.body
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	data = string(bodyBytes)
 	c.Set("post_json", data)
 	return data

@@ -21,7 +21,7 @@ import (
 var logLevel string
 
 func Start() {
-	zerolog.SetGlobalLevel(setLogLever())
+	zerolog.SetGlobalLevel(SetLogLever(rgconfig.GetStr(rgconst.ConfigKeyLogLevel)))
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 	if logLevel == "debug" {
 		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
@@ -80,7 +80,9 @@ func (c *Client) Info(any ...interface{}) {
 		nowDate := time.Now().Format(rgconst.GoDateFormat)
 		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
 		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		defer f.Close()
+		defer func() {
+			_ = f.Close()
+		}()
 		if err != nil {
 			return
 		}
@@ -201,7 +203,7 @@ func (c *Client) Debug(any ...interface{}) {
 			},
 		}
 		logger := log.Sample(levelSimpler).Output(output).With().Caller().CallerWithSkipFrameCount(3).Logger()
-		logger.Debug().Msg(param)
+		logger.Debug().Fields(map[string]interface{}{"UniqId": c.UniqId}).Msg(param)
 	}
 }
 
@@ -320,10 +322,10 @@ func Println(param ...interface{}) {
 * @Author  : LiJunDong
 * @Time    : 2022-03-10
  */
-func setLogLever() (level zerolog.Level) {
+func SetLogLever(param string) (level zerolog.Level) {
 	level = zerolog.InfoLevel
 	logLevel = "info"
-	switch rgconfig.GetStr(rgconst.ConfigKeyLogLevel) {
+	switch param {
 	case "debug":
 		level = zerolog.DebugLevel
 		logLevel = "debug"
@@ -346,6 +348,10 @@ func setLogLever() (level zerolog.Level) {
 		level = zerolog.InfoLevel
 	}
 	return level
+}
+
+func GetLogLevel() string {
+	return logLevel
 }
 
 /*
