@@ -13,10 +13,10 @@ import (
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-06-01
-func Inter(param1, param2 []string) (res []string) {
+func Inter[T int | int64 | string](param1, param2 []T) (res []T) {
 	defer func() {
 		if err := recover(); err != nil {
-			logStr, _ := json.Marshal([][]string{param1, param2})
+			logStr, _ := json.Marshal([][]T{param1, param2})
 			rglog.SystemError("recover捕获错误|" + fmt.Errorf("internal error: %v", err).Error() + "| data :" + string(logStr))
 		}
 	}()
@@ -26,18 +26,17 @@ func Inter(param1, param2 []string) (res []string) {
 	if len(param2) == 0 {
 		return param2
 	}
-	tmp := make(map[string]struct{}, len(param2)+len(param1))
+	tmp := make(map[T]struct{}, len(param2)+len(param1))
 	for _, item := range param2 {
 		tmp[item] = struct{}{}
 	}
-	cut := 0
+	res = make([]T, 0, len(param1))
 	for _, item := range param1 {
 		if _, ok := tmp[item]; ok {
-			param1[cut] = item
-			cut = cut + 1
+			res = append(res, item)
 		}
 	}
-	return param1[:cut]
+	return res
 }
 
 // Union 并集
@@ -45,8 +44,8 @@ func Inter(param1, param2 []string) (res []string) {
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-06-01
-func Union(param1, param2 []string) (res []string) {
-	tmp := make(map[string]struct{}, len(param1)+len(param2))
+func Union[T int | int64 | string](param1, param2 []T) (res []T) {
+	tmp := make(map[T]struct{}, len(param1)+len(param2))
 	for _, item := range param1 {
 		tmp[item] = struct{}{}
 	}
@@ -64,11 +63,11 @@ func Union(param1, param2 []string) (res []string) {
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-06-01
-func Diff(param1, param2 []string) (res []string) {
+func Diff[T int | int64 | string](param1, param2 []T) (res []T) {
 	if len(param2) == 0 || len(param1) == 0 {
 		return param1
 	}
-	tmp := make(map[string]struct{}, len(param2))
+	tmp := make(map[T]struct{}, len(param2))
 	for _, item := range param2 {
 		tmp[item] = struct{}{}
 	}
@@ -92,11 +91,11 @@ func Diff(param1, param2 []string) (res []string) {
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-06-01
-func Unique(param []string) (data []string) {
+func Unique[T int | int64 | string](param []T) (data []T) {
 	if len(param) == 0 {
 		return param
 	}
-	tmp := make(map[string]struct{}, len(param))
+	tmp := make(map[T]struct{}, len(param))
 	cut := 0
 	for i := 0; i < len(param); i++ {
 		item := param[i]
@@ -115,7 +114,7 @@ func Unique(param []string) (data []string) {
 // @Return  :
 // @Author  : LiJunDong
 // @Time    : 2022-06-01
-func Reverse(s []string) []string {
+func Reverse[T int | int64 | string](s []T) []T {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
 	}
@@ -140,7 +139,7 @@ func SortStringNumber(ss []string) []string {
 	return ss
 }
 
-func InArrayStr(val string, haystack []string) (exists bool) {
+func StrInArray(val string, haystack []string) (exists bool) {
 	for _, e := range haystack {
 		if e == val {
 			return true
@@ -150,7 +149,7 @@ func InArrayStr(val string, haystack []string) (exists bool) {
 
 }
 
-func InArrayInt(val int, haystack []int) (exists bool) {
+func IntInArray(val int, haystack []int) (exists bool) {
 	for _, e := range haystack {
 		if e == val {
 			return true
@@ -159,7 +158,7 @@ func InArrayInt(val int, haystack []int) (exists bool) {
 	return false
 }
 
-func InArrayInt64(val int64, haystack []int64) (exists bool) {
+func InArray[T int | int64 | string](val T, haystack []T) (exists bool) {
 	for _, e := range haystack {
 		if e == val {
 			return true
@@ -168,7 +167,45 @@ func InArrayInt64(val int64, haystack []int64) (exists bool) {
 	return false
 }
 
-func ArrayPopItem(item int64, array []int64) (newArray []int64) {
+func IsEmptySlice[T int64 | string | float64](param []T) bool {
+	if len(param) == 0 {
+		return true
+	}
+	return false
+}
+
+func InSlice[T int | int64 | string](s []T, i T) bool {
+	m := SliceToMap(s)
+	_, ok := m[i]
+	return ok
+}
+
+func SliceIntToStr[T int64 | int](param []T) (data []string) {
+	data = make([]string, 0, len(param))
+	for _, item := range param {
+		data = append(data, strconv.Itoa(int(item)))
+	}
+	return data
+}
+
+func SliceStrToInt64(param []string) (data []int64) {
+	data = make([]int64, 0, len(param))
+	for _, item := range param {
+		intItem, _ := strconv.Atoi(item)
+		data = append(data, int64(intItem))
+	}
+	return data
+}
+
+func SliceToMap[T int | int64 | string](param []T) (data map[T]struct{}) {
+	data = make(map[T]struct{})
+	for _, item := range param {
+		data[item] = struct{}{}
+	}
+	return data
+}
+
+func ArrayPopItem[T int | int64 | string](item T, array []T) (newArray []T) {
 	if len(array) == 0 {
 		return array
 	}
@@ -179,7 +216,7 @@ func ArrayPopItem(item int64, array []int64) (newArray []int64) {
 	}
 	return array
 }
-func ArrayPopItems(items []int64, array []int64) (newArray []int64) {
+func ArrayPopItems[T int | int64 | string](items []T, array []T) (newArray []T) {
 	if len(array) == 0 {
 		return array
 	}
@@ -188,46 +225,4 @@ func ArrayPopItems(items []int64, array []int64) (newArray []int64) {
 		newArray = ArrayPopItem(item, newArray)
 	}
 	return newArray
-}
-
-func KeyStringMapExist(key string, mapData map[string]string) (res bool) {
-	if _, ok := mapData[key]; ok {
-		return true
-	} else {
-		return false
-	}
-}
-
-func KeyInt64MapExist(key int64, mapData map[int64]int64) (res bool) {
-	if _, ok := mapData[key]; ok {
-		return true
-	} else {
-		return false
-	}
-}
-
-func Int64SliceToStringSlice(param []int64) (data []string) {
-	if len(param) == 0 {
-		return data
-	}
-	data = make([]string, 0, len(param))
-	for _, item := range param {
-		data = append(data, strconv.Itoa(int(item)))
-	}
-	return data
-}
-
-func StringSliceToInt64Slice(param []string) (data []int64) {
-	if len(param) == 0 {
-		return data
-	}
-	data = make([]int64, 0, len(param))
-	for _, item := range param {
-		value, err := strconv.Atoi(item)
-		if err != nil {
-			continue
-		}
-		data = append(data, int64(value))
-	}
-	return data
 }
