@@ -49,7 +49,7 @@ func InitTrans() (err error) {
 	var ok bool
 	if Validate, ok = binding.Validator.Engine().(*validator.Validate); ok {
 		for key, item := range registerFuncMap {
-			Validate.RegisterValidation(key, item)
+			_ = Validate.RegisterValidation(key, item)
 		}
 		zhT := zh.New() //中文翻译器
 		enT := en.New() //英文翻译器
@@ -171,4 +171,15 @@ func SetLogLevelHandle(ctx *gin.Context) {
 func GetLogLevelHandle(ctx *gin.Context) {
 	level := rglog.GetLogLevel()
 	ctx.JSON(http.StatusOK, map[string]string{"level": level})
+}
+
+func GetConfigHandle(ctx *gin.Context) {
+	key := ctx.Query("key")
+	if key == "" {
+		ctx.JSON(http.StatusOK, map[string]string{"error": "key is nil"})
+		return
+	}
+	value := rgconfig.Get(key)
+	ctx.JSON(http.StatusOK, map[string]interface{}{key: value})
+	return
 }

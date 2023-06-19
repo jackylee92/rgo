@@ -129,31 +129,3 @@ func loadBaseConfig() {
 func ReadFile() []byte {
 	return configByte
 }
-
-/*
-* @Content : 处理命令行参数
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-05-12
- */
-//func parse() []string {
-//	oldArgs := os.Args
-//	newArgs := make([]string, 0, 2)
-//	if len(os.Args) > 0 {
-//		newArgs = append(newArgs, os.Args[0])
-//	}
-//	for key, item := range os.Args {
-//		if key == 0 {
-//			continue
-//		}
-//		if strings.Contains(item, "-config") {
-//			newArgs = append(newArgs, item)
-//			break
-//		}
-//	}
-//	if len(newArgs) == 2 {
-//		os.Args = newArgs
-//	}
-//	return oldArgs
-//}

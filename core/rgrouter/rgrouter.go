@@ -42,6 +42,7 @@ func NewRouter() *gin.Engine {
 	router.GET("/"+rgconst.ConfigHeartBeatUrl, HeartBeatHandle)     // 健康检查
 	router.GET("/"+rgconst.ConfigSetLogLevelUrl, SetLogLevelHandle) // 设置日志级别
 	router.GET("/"+rgconst.ConfigGetLogLevelUrl, GetLogLevelHandle) // 获取日志级别
+	router.GET("/"+rgconst.ConfigGetUrl, GetConfigHandle)           // 获取日志配置
 
 	router.NoRoute(func(c *gin.Context) { c.String(http.StatusNotFound, rgerror.Curl404Error) })
 

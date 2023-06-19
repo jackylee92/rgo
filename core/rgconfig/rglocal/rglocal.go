@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"gopkg.in/yaml.v2"
 	"github.com/jackylee92/rgo/core/rgconfig"
+	"gopkg.in/yaml.v2"
 )
 
 type LocalConfig struct{}

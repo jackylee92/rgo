@@ -1,11 +1,11 @@
 package rgpprof
 
 import (
+	"github.com/gin-contrib/pprof"
+	"github.com/gin-gonic/gin"
 	"github.com/jackylee92/rgo/core/rgconfig"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"github.com/jackylee92/rgo/core/rglog"
-	"github.com/gin-contrib/pprof"
-	"github.com/gin-gonic/gin"
 )
 
 /*

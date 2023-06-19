@@ -28,6 +28,21 @@ func (c client) Load() func() error {
 * @Author  : LiJunDong
 * @Time    : 2022-03-08
  */
+func (c client) Get(param string) (data interface{}) {
+	dataTmp, ok := config[param]
+	if !ok {
+		return nil
+	}
+	return dataTmp
+}
+
+/*
+* @Content : 根据key查询
+* @Param   :
+* @Return  :
+* @Author  : LiJunDong
+* @Time    : 2022-03-08
+ */
 func (c client) GetStr(param string) (data string) {
 	dataTmp, ok := config[param]
 	if !ok {
