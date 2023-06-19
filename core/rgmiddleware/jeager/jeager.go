@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"io"
 	"strconv"
 	"time"
 
@@ -32,7 +33,9 @@ func Handle() gin.HandlerFunc {
 		if rgjaerger.JaergerStatus() {
 			tracer, spanContext, closer, err := rgjaerger.GetTracer(c.Request.Header)
 			if err == nil {
-				defer closer.Close()
+				defer func(closer io.Closer) {
+					_ = closer.Close()
+				}(closer)
 				startSpan := tracer.StartSpan(c.Request.URL.Path, ext.RPCServerOption(spanContext))
 				defer startSpan.Finish()
 				blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
@@ -92,7 +95,7 @@ func Handle() gin.HandlerFunc {
  */
 func getRequestParam(c *gin.Context) string {
 	var paramForm, paramJson string
-	c.Request.ParseForm()
+	_ = c.Request.ParseForm()
 	paramFormArr := make(map[string]interface{})
 	for k, v := range c.Request.PostForm {
 		paramFormArr[k] = v

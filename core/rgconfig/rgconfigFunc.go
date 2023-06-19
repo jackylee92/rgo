@@ -6,6 +6,7 @@ package rgconfig
 
 // <LiJunDong : 2022-03-02 16:08:36> --- 各种缓存标准interface
 type ConfigInterface interface {
+	Get(string) interface{}             // 获取interface类型
 	GetStr(string) string               // 获取String类型
 	GetInt(string) int64                // 获取int64类型
 	GetBool(string) bool                // 获取bool类型
@@ -15,6 +16,21 @@ type ConfigInterface interface {
 	Isset(string) bool                  // 判断配置是否存在
 	Reload() error                      // 重新加载配置
 	Load() func() error
+}
+
+/*
+* @Content : 获取配置
+* @Param   :
+* @Return  :
+* @Author  : LiJunDong
+* @Time    : 2022-03-01
+ */
+func Get(param string) (data interface{}) {
+	if configPool == nil {
+		return data
+	}
+	data = configPool.Get(param)
+	return data
 }
 
 /*

@@ -25,6 +25,7 @@ const (
 	//  <LiJunDong : 2022-06-18 14:11:50> --- 设置日志级别
 	ConfigSetLogLevelUrl string = "setLogLevel"
 	ConfigGetLogLevelUrl string = "getLogLevel"
+	ConfigGetUrl         string = "getConfig"
 
 	// <LiJunDong : 2022-03-28 11:24:00> --- 系统配置文件名
 	ConfigKeyLogLevel             string = "sys_log_level"               // 日志级别

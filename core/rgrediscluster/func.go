@@ -59,17 +59,17 @@ func (client *Client) Setnx(key string, val string, t time.Duration) (bool, erro
 		return false, errors.New(rgerror.ErrorRedisClientNil)
 	}
 	if key == "" {
-		err := errors.New("Redis设置不存在的key结果失败，key为空")
+		err := errors.New("redis设置不存在的key结果失败，key为空")
 		return false, err
 	}
 	if val == "" {
-		err := errors.New("Redis设置不存在的key结果失败，val为空")
+		err := errors.New("redis设置不存在的key结果失败，val为空")
 		return false, err
 	}
 
 	result, err := client.linkObj.SetNX(key, val, t).Result()
 	if err != nil {
-		err := errors.New("Redis设置不存在的key结果失败" + err.Error())
+		err := errors.New("redis设置不存在的key结果失败" + err.Error())
 		return false, err
 	}
 	return result, nil

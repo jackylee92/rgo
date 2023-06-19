@@ -2,8 +2,8 @@ package rgrediscodis
 
 import (
 	"errors"
-	"github.com/jackylee92/rgo/core/rglog"
 	"github.com/go-redis/redis"
+	"github.com/jackylee92/rgo/core/rglog"
 	"strings"
 	"sync"
 	"time"
@@ -78,6 +78,6 @@ func validateConfig(cfg Config) (err error) {
 	return err
 }
 
-func GetRedisClient(client *Client)(baseClient *redis.Client){
+func GetRedisClient(client *Client) (baseClient *redis.Client) {
 	return client.linkObj
 }

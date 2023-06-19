@@ -30,8 +30,8 @@ var chanMax = getChanMax()
 var chanMaxLock = make(chan struct{}, chanMax)
 
 type Client struct {
-	this   *rgrequest.Client `json:"-"` // json解析忽略
-	conn   *amqp.Connection  `json:"-"`
+	this   *rgrequest.Client
+	conn   *amqp.Connection
 	config Config
 }
 

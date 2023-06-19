@@ -2,7 +2,6 @@ package rgmysql
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"time"
 
@@ -18,7 +17,7 @@ type Logger struct {
 	traceStr, traceErrStr, traceWarnStr string
 }
 
-var ErrRecordNotFound = errors.New("record not found")
+//var ErrRecordNotFound = errors.New("record not found")
 
 // LogMode log mode
 func (l Logger) LogMode(level logger.LogLevel) logger.Interface {

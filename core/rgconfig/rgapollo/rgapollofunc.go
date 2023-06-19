@@ -21,6 +21,18 @@ func (c client) Load() func() error {
 * @Author  : LiJunDong
 * @Time    : 2022-03-08
  */
+func (c client) Get(param string) (data interface{}) {
+	data = configPool.GetValue(param)
+	return data
+}
+
+/*
+* @Content : 根据key查询
+* @Param   :
+* @Return  :
+* @Author  : LiJunDong
+* @Time    : 2022-03-08
+ */
 func (c client) GetStr(param string) (data string) {
 	data = configPool.GetValue(param)
 	return data
