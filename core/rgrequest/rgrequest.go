@@ -3,13 +3,14 @@ package rgrequest
 import (
 	"bytes"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
+	"github.com/jackylee92/rgo/core/rgjaeger"
 	"github.com/jackylee92/rgo/core/rgmysql"
 	"io"
 	"net/http/httputil"
 	"net/url"
+	"sync"
 	"time"
 
-	"github.com/jackylee92/rgo/core/rgjaerger"
 	"github.com/jackylee92/rgo/core/rglog"
 	"github.com/jackylee92/rgo/core/rgresponse"
 
@@ -25,9 +26,25 @@ type Client struct {
 	Response       *rgresponse.Client
 	requestTimeInt int64
 	requestEndTime int64
-	Jaerger        *rgjaerger.Client
+	Jaeger         *rgjaeger.Client
 	Mysql          *rgmysql.Factory
 	Ctx            *gin.Context
+}
+
+var ClientPool sync.Pool
+
+func init() {
+	ClientPool.New = func() any {
+		nilUniqId := ""
+		logClient := rglog.New(nilUniqId)
+		return &Client{
+			Log:      logClient,
+			UniqId:   nilUniqId,
+			Mysql:    rgmysql.New(nilUniqId, logClient),
+			Response: &rgresponse.Client{},
+			Jaeger:   &rgjaeger.Client{},
+		}
+	}
 }
 
 /*
@@ -43,24 +60,28 @@ func Get(c *gin.Context) *Client {
 	if ok {
 		return this.(*Client)
 	}
-	ctxInterface, ok := c.Get(rgconst.ContextJeargerCtxKey)
-	tracerInterface, _ := c.Get(rgconst.ContextJeargerTracerKey)
-	jeargerClient := &rgjaerger.Client{}
+	ctxInterface, ok := c.Get(rgconst.ContextJaegerCtxKey)
+	tracerInterface, _ := c.Get(rgconst.ContextJaegerTracerKey)
+	jaegerClient := &rgjaeger.Client{}
 	if ok {
 		parentCtx := ctxInterface.(opentracing.SpanContext)
 		tracer := tracerInterface.(opentracing.Tracer)
-		jeargerClient = rgjaerger.New(parentCtx, tracer)
+		jaegerClient.Reset(parentCtx, tracer)
 	}
-	logger := rglog.New(uniqId)
 	c.Set(rgconst.ContextStartTimeKey, time.Now().UnixNano())
-	return &Client{
-		Log:      logger,
-		UniqId:   uniqId,
-		Response: rgresponse.New(uniqId, c),
-		Jaerger:  jeargerClient,
-		Mysql:    rgmysql.New(uniqId, logger),
-		Ctx:      c,
-	}
+	client := ClientPool.Get().(*Client)
+	client.UniqId = uniqId
+	client.Ctx = c
+	client.Jaeger = jaegerClient
+	client.reset()
+	return client
+}
+
+func (c *Client) reset() {
+	c.Log.UniqId = c.UniqId
+	c.Mysql.UniqId = c.UniqId
+	c.Response.UniqId = c.UniqId
+	c.Response.Ctx = c.Ctx
 }
 
 func GetPostJson(c *gin.Context) (data string) {

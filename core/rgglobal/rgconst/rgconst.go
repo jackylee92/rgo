@@ -14,12 +14,12 @@ const (
 	GoDateFormat      string = "2006-01-02"          // go 日期格式
 
 	// UniqIDKey <LiJunDong : 2022-03-28 11:24:00> --- context中uniqid的key名
-	ContextUniqIDKey        string = "uniqid"
-	ContextStartTimeKey     string = "start_time"
-	ContextContainerKey     string = "container"
-	ContextJeargerCtxKey    string = "jearger_ctx"
-	ContextJeargerTracerKey string = "jearger_tracer"
-
+	ContextUniqIDKey       string = "uniqid"
+	ContextStartTimeKey    string = "start_time"
+	ContextContainerKey    string = "container"
+	ContextJaegerCtxKey    string = "jaeger_ctx"
+	ContextJaegerTracerKey string = "jaeger_tracer"
+	/**/
 	//  <LiJunDong : 2022-06-18 14:11:50> --- 心跳的url
 	ConfigHeartBeatUrl string = "elb-status"
 	//  <LiJunDong : 2022-06-18 14:11:50> --- 设置日志级别
@@ -33,8 +33,8 @@ const (
 	ConfigKeyAppName              string = "sys_app_name"                // 项目名称
 	ConfigKeyPort                 string = "sys_port"                    // 端口
 	ConfigKeyMessage              string = "sys_language"                // 语言
-	ConfigKeyJaergerStatus        string = "sys_jaerger_status"          // jaerger开关
-	ConfigKeyJaergerHost          string = "sys_jaerger_host"            // jaerger配置地址
+	ConfigKeyJaegerStatus         string = "sys_jaeger_status"           // jaeger开关
+	ConfigKeyJaegerHost           string = "sys_jaeger_host"             // jaeger配置地址
 	ConfigKeyRequestLog           string = "sys_request_log"             // 请求日志
 	ConfigKeyDebug                string = "sys_debug"                   // 调试模式，开启调试模式，所有的日志将会在终端打印
 	ConfigKeyHttpAllowCrossDomain string = "sys_http_allow_cross_domain" // 是否允许跨域

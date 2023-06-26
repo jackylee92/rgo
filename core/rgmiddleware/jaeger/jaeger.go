@@ -1,4 +1,4 @@
-package jeager
+package jaeger
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jackylee92/rgo/core/rgjaerger"
+	"github.com/jackylee92/rgo/core/rgjaeger"
 	"github.com/jackylee92/rgo/core/rglog"
 	"github.com/jackylee92/rgo/core/rgrequest"
 
@@ -30,8 +30,8 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 
 func Handle() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if rgjaerger.JaergerStatus() {
-			tracer, spanContext, closer, err := rgjaerger.GetTracer(c.Request.Header)
+		if rgjaeger.JaegerStatus() {
+			tracer, spanContext, closer, err := rgjaeger.GetTracer(c.Request.Header)
 			if err == nil {
 				defer func(closer io.Closer) {
 					_ = closer.Close()
@@ -62,8 +62,8 @@ func Handle() gin.HandlerFunc {
 				tagName = "time.start"
 				tagName.Set(startSpan, startTime)
 				parentCtx := startSpan.Context()
-				c.Set(rgconst.ContextJeargerTracerKey, tracer)
-				c.Set(rgconst.ContextJeargerCtxKey, parentCtx)
+				c.Set(rgconst.ContextJaegerTracerKey, tracer)
+				c.Set(rgconst.ContextJaegerCtxKey, parentCtx)
 				c.Next()
 				endTimeInt := time.Now()
 				endTime := endTimeInt.Format(rgconst.GoTimeFormat)

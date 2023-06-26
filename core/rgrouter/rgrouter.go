@@ -8,7 +8,7 @@ import (
 	"github.com/jackylee92/rgo/core/rglog"
 	"github.com/jackylee92/rgo/core/rgmiddleware/container"
 	"github.com/jackylee92/rgo/core/rgmiddleware/crossdomain"
-	"github.com/jackylee92/rgo/core/rgmiddleware/jeager"
+	"github.com/jackylee92/rgo/core/rgmiddleware/jaeger"
 	"github.com/jackylee92/rgo/core/rgmiddleware/recovery"
 	"github.com/jackylee92/rgo/core/rgmiddleware/requestlog"
 	"github.com/jackylee92/rgo/core/rgpprof"
@@ -38,7 +38,7 @@ func NewRouter() *gin.Engine {
 	if rgconfig.GetBool(rgconst.ConfigKeyHttpAllowCrossDomain) {
 		router.Use(crossdomain.Handle()) // 跨域
 	}
-	router.Use(jeager.Handle(), requestlog.Handle(), recovery.Handle(), container.Handle())
+	router.Use(jaeger.Handle(), requestlog.Handle(), recovery.Handle(), container.Handle())
 	router.GET("/"+rgconst.ConfigHeartBeatUrl, HeartBeatHandle)     // 健康检查
 	router.GET("/"+rgconst.ConfigSetLogLevelUrl, SetLogLevelHandle) // 设置日志级别
 	router.GET("/"+rgconst.ConfigGetLogLevelUrl, GetLogLevelHandle) // 获取日志级别

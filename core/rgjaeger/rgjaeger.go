@@ -1,4 +1,4 @@
-package rgjaerger
+package rgjaeger
 
 import (
 	"errors"
@@ -19,17 +19,17 @@ import (
 )
 
 // 是否开启
-var jaergerStatus bool
+var jaegerStatus bool
 
-func JaergerStatus() bool {
-	return jaergerStatus
+func JaegerStatus() bool {
+	return jaegerStatus
 }
 
-func SetJaergerStatus(status bool) {
+func SetJaegerStatus(status bool) {
 	if status {
-		rglog.SystemInfo("启动项【jaerger_status】| 开启")
+		rglog.SystemInfo("启动项【jaeger_status】| 开启")
 	}
-	jaergerStatus = status
+	jaegerStatus = status
 }
 
 type Client struct {
@@ -52,9 +52,9 @@ func GetTracer(header http.Header) (opentracing.Tracer, opentracing.SpanContext,
 // 创建一个Tracer
 func createTracer() (opentracing.Tracer, io.Closer, error) {
 	appName := rgglobal.AppName
-	jaergerHost := rgconfig.GetStr(rgconst.ConfigKeyJaergerHost)
-	if jaergerHost == "" {
-		return nil, nil, errors.New(rgerror.ErrorJaergerHostNil)
+	jaegerHost := rgconfig.GetStr(rgconst.ConfigKeyJaegerHost)
+	if jaegerHost == "" {
+		return nil, nil, errors.New(rgerror.ErrorJaegerHostNil)
 	}
 	if appName == "" {
 		return nil, nil, errors.New(rgerror.ErrorAppNameNil)
@@ -67,7 +67,7 @@ func createTracer() (opentracing.Tracer, io.Closer, error) {
 		},
 		Reporter: &jaegercfg.ReporterConfig{
 			LogSpans:          true,
-			CollectorEndpoint: jaergerHost,
+			CollectorEndpoint: jaegerHost,
 		},
 	}
 
@@ -80,7 +80,7 @@ func createTracer() (opentracing.Tracer, io.Closer, error) {
 }
 
 func New(ctx opentracing.SpanContext, tracer opentracing.Tracer) *Client {
-	if !jaergerStatus || ctx == nil || tracer == nil {
+	if !jaegerStatus || ctx == nil || tracer == nil {
 		return nil
 	} else {
 		return &Client{
@@ -90,8 +90,14 @@ func New(ctx opentracing.SpanContext, tracer opentracing.Tracer) *Client {
 	}
 }
 
+func (c *Client) Reset(ctx opentracing.SpanContext, tracer opentracing.Tracer) {
+	c.ctx = ctx
+	c.tracer = tracer
+	return
+}
+
 func (c *Client) Send(action string, param map[string]interface{}, parentSpanInterface interface{}) opentracing.SpanContext {
-	if !jaergerStatus {
+	if !jaegerStatus {
 		return nil
 	}
 	param["time"] = time.Now().Format(rgconst.GoTimeFormat)

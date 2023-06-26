@@ -61,12 +61,12 @@ func checkConfig() {
 	if value == "" {
 		rglog.SystemInfo("[" + rgconst.ConfigKeyMessage + "]为空")
 	}
-	value = rgconfig.GetStr(rgconst.ConfigKeyJaergerStatus)
-	// log.Println(rgconst.ConfigKeyJaergerStatus, value)
-	value = rgconfig.GetStr(rgconst.ConfigKeyJaergerHost)
-	// log.Println(rgconst.ConfigKeyJaergerHost, value)
+	value = rgconfig.GetStr(rgconst.ConfigKeyJaegerStatus)
+	// log.Println(rgconst.ConfigKeyJaegerStatus, value)
+	value = rgconfig.GetStr(rgconst.ConfigKeyJaegerHost)
+	// log.Println(rgconst.ConfigKeyJaegerHost, value)
 	// if value == "" {
-	//     rglog.SystemInfo("[" + rgconst.ConfigKeyJaergerHost + "]为空")
+	//     rglog.SystemInfo("[" + rgconst.ConfigKeyJaegerHost + "]为空")
 	// }
 	value = rgconfig.GetStr(rgconst.ConfigKeyRequestLog)
 	// log.Println(rgconst.ConfigKeyRequestLog, value)
