@@ -11,7 +11,7 @@ const (
 	ErrorConfigInit        string = "项目配置启动失败"
 	ErrorRequirePanic      string = "程序异常panic"
 	ErrorAppNameNil        string = "未获取到AppName"
-	ErrorJaergerHostNil    string = "未获取到JaergerHost"
+	ErrorJaegerHostNil     string = "未获取到JaegerHost"
 	ErrorLocalIpNil        string = "获取本地IP失败"
 	ErrorStartFuncOverflow string = "启动函数过多"
 

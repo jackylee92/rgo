@@ -8,7 +8,7 @@ import (
 	"github.com/jackylee92/rgo/core/rgdestroy"
 	"github.com/jackylee92/rgo/core/rgglobal"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
-	"github.com/jackylee92/rgo/core/rgjaerger"
+	"github.com/jackylee92/rgo/core/rgjaeger"
 	"github.com/jackylee92/rgo/core/rglog"
 	"github.com/jackylee92/rgo/core/rgmysql"
 	"github.com/jackylee92/rgo/core/rgrequest"
@@ -41,8 +41,8 @@ func init() {
 	rgrequired.Check()
 	// <LiJunDong : 2022-03-21 11:09:35> --- 设置项目名称，配置中必须包含
 	rgglobal.SetAppName(rgconfig.GetStr(rgconst.ConfigKeyAppName))
-	// <LiJunDong : 2022-03-21 11:09:35> --- 设置jaerger是否开启
-	rgjaerger.SetJaergerStatus(rgconfig.GetBool(rgconst.ConfigKeyJaergerStatus))
+	// <LiJunDong : 2022-03-21 11:09:35> --- 设置jaeger是否开启
+	rgjaeger.SetJaegerStatus(rgconfig.GetBool(rgconst.ConfigKeyJaegerStatus))
 	// <LiJunDong : 2022-03-30 21:18:37> --- 根据配置是否启用mysql
 	rgmysql.Start()
 	// <LiJunDong : 2022-05-30 18:14:09> --- 启动用户注册的函数

@@ -25,10 +25,10 @@ sys_language: zh
 sys_return_uniqid: true
 # pprof开启关闭
 sys_pprof: true
-# jearger 开启/关闭
-sys_jaerger_status: false
-# jearger host地址
-sys_jaerger_host:
+# jaeger 开启/关闭
+sys_jaeger_status: false
+# jaeger host地址
+sys_jaeger_host:
 
 ##### MySQL
 # 数据库配置
