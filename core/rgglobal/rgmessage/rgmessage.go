@@ -6,7 +6,7 @@ import (
 	"github.com/jackylee92/rgo/core/rgglobal/rgerror"
 )
 
-var rgMsg map[int64]map[string]string = map[int64]map[string]string{
+var rgMsg = map[int64]map[string]string{
 	rgconst.ReturnSuccessCode: {
 		"zh": rgerror.CurlSuccess,
 		"en": rgerror.CurlSuccessEn,

@@ -46,7 +46,7 @@ type Client struct {
 
 var logDir string
 
-var levelSimpler *zerolog.LevelSampler = &zerolog.LevelSampler{
+var levelSimpler = &zerolog.LevelSampler{
 	DebugSampler: &zerolog.BurstSampler{
 		Burst:       5000,
 		Period:      time.Second,
