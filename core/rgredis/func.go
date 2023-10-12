@@ -27,13 +27,7 @@ func (client *Client) GetClient() (redis.Cmdable, error) {
 	return client.linkObj, nil
 }
 
-/*
-* @Content : string类型 获取
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2021-09-09
- */
+// Get /*
 func (client *Client) Get(key string) (string, error) {
 	data, err := client.linkObj.Get(key).Result()
 	return data, err

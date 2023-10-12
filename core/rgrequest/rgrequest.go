@@ -84,6 +84,24 @@ func (c *Client) reset() {
 	c.Response.Ctx = c.Ctx
 }
 
+func (c *Client) Copy() (newC *Client) {
+	newCtx := c.Ctx.Copy()
+	newC = &Client{
+		Param:  c.Param,
+		UniqId: c.UniqId,
+		Mysql:  c.Mysql,
+		Ctx:    newCtx,
+		Log:    c.Log,
+	}
+	if c.Response != nil {
+		newC.Response = &rgresponse.Client{
+			UniqId: c.Response.UniqId,
+			Ctx:    newCtx,
+		}
+	}
+	return newC
+}
+
 func GetPostJson(c *gin.Context) (data string) {
 	dataInterface, ok := c.Get("post_json")
 	if ok {

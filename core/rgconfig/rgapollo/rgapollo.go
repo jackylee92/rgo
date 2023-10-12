@@ -3,7 +3,7 @@ package rgapollo
 import (
 	"github.com/jackylee92/rgo/core/rgconfig"
 
-	agollo "github.com/apolloconfig/agollo/v4"
+	"github.com/apolloconfig/agollo/v4"
 	"github.com/apolloconfig/agollo/v4/env/config"
 	"github.com/apolloconfig/agollo/v4/storage"
 )

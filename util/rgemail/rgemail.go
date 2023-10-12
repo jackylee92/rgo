@@ -25,40 +25,40 @@ type EmailClient struct {
 func (e *EmailClient) getEmailBodyType() string {
 	return "text/html"
 }
-func (e EmailClient) getHost() string {
+func (e *EmailClient) getHost() string {
 	if e.Host == "" {
 		return "smtp.mxhichina.com"
 	}
 	return e.Host
 }
-func (e EmailClient) getPort() int {
+func (e *EmailClient) getPort() int {
 	if e.Port <= 0 {
 		return 465
 	}
 	return e.Port
 }
-func (e EmailClient) getUserName() string {
+func (e *EmailClient) getUserName() string {
 	if e.UserName == "" {
 		return "system@ruigushop.com"
 	}
 	return e.UserName
 }
 
-func (e EmailClient) getFrom() string {
+func (e *EmailClient) getFrom() string {
 	if e.From == "" {
 		return "system@ruigushop.com"
 	}
 	return e.From
 }
 
-func (e EmailClient) getPassword() string {
+func (e *EmailClient) getPassword() string {
 	if e.Password == "" {
 		return "oxedYa3sQckk2f"
 	}
 	return e.Password
 }
 
-func (e EmailClient) Send() error {
+func (e *EmailClient) Send() error {
 	var err error
 	err = e.check()
 	if err != nil {
@@ -86,7 +86,7 @@ func (e EmailClient) Send() error {
 	return nil
 }
 
-func (e EmailClient) check() error {
+func (e *EmailClient) check() error {
 
 	if e.Content == "" {
 		return errors.New("请配置邮件内容")
