@@ -13,6 +13,8 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/json-iterator/go v1.1.12
 	github.com/opentracing/opentracing-go v1.2.0
+	github.com/pkg/errors v0.9.1
+	github.com/robfig/cron v1.2.0
 	github.com/rs/xid v1.4.0
 	github.com/rs/zerolog v1.27.0
 	github.com/shopspring/decimal v1.3.1
@@ -49,7 +51,6 @@ require (
 	github.com/onsi/gomega v1.18.1 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/afero v1.1.2 // indirect
 	github.com/spf13/cast v1.3.0 // indirect
 	github.com/spf13/jwalterweatherman v1.0.0 // indirect

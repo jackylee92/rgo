@@ -6,7 +6,6 @@ import (
 	"github.com/jackylee92/rgo/core/rgconfig"
 	"github.com/jackylee92/rgo/core/rgglobal/rgconst"
 	"github.com/jackylee92/rgo/core/rglog"
-	"github.com/rs/zerolog"
 	"net/http"
 	"reflect"
 	"strings"
@@ -163,8 +162,7 @@ func HeartBeatHandle(ctx *gin.Context) {
 
 func SetLogLevelHandle(ctx *gin.Context) {
 	param := ctx.Query("level")
-	level := rglog.SetLogLever(param)
-	zerolog.SetGlobalLevel(level)
+	rglog.SetLogLever(param)
 	ctx.JSON(http.StatusOK, map[string]int{"code": 200})
 }
 

@@ -3,6 +3,10 @@ package rglog
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jackylee92/rgo/core/rgenv"
+	"github.com/jackylee92/rgo/util/rgtime"
+	"github.com/pkg/errors"
+	"github.com/robfig/cron"
 	"os"
 	"strconv"
 	"strings"
@@ -18,14 +22,71 @@ import (
 	"github.com/rs/zerolog/pkgerrors"
 )
 
-var logLevel string
+type Client struct {
+	UniqId string
+	sync.Pool
+}
+
+type LogLevel string
+
+var (
+	LevelDebug    LogLevel = "DEBUG"
+	LevelInfo     LogLevel = "INFO"
+	LevelWarn     LogLevel = "WARN"
+	LevelError    LogLevel = "ERROR"
+	LevelRequest  LogLevel = "REQUEST"
+	LevelResponse LogLevel = "RESPONSE"
+	LevelSystem   LogLevel = "SYSTEM"
+	LevelNo       LogLevel = "NO"
+)
+
+var (
+	fileLoggerClient  zerolog.Logger
+	localLoggerClient zerolog.Logger
+	logLevel          LogLevel
+	logDir            string
+)
+
+var fileOutput = zerolog.ConsoleWriter{
+	FormatTimestamp: func(i interface{}) string {
+		return time.Now().Local().Format(rgconst.GoTimeFormat)
+	},
+	FormatLevel: func(i interface{}) string {
+		if i == nil {
+			return ""
+		}
+		if i.(string) == "100" {
+			return "| " + string(LevelRequest) + " |"
+		}
+		if i.(string) == "101" {
+			return "| " + string(LevelResponse) + " |"
+		}
+		if i.(string) == "102" {
+			return "| " + string(LevelSystem) + "INFO |"
+		}
+		if i.(string) == "103" {
+			return "| " + string(LevelSystem) + "ERROR |"
+		}
+		return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
+	},
+	FormatCaller: func(i interface{}) string {
+		return fmt.Sprintf("%s |", i)
+	},
+	FormatMessage: func(i interface{}) string {
+		return fmt.Sprintf("%s", i)
+	},
+	FormatErrFieldName: func(i interface{}) string {
+		return "| "
+	},
+	FormatErrFieldValue: func(i interface{}) string {
+		return fmt.Sprintf("%s |", i)
+	},
+}
 
 func Start() {
-	zerolog.SetGlobalLevel(SetLogLever(rgconfig.GetStr(rgconst.ConfigKeyLogLevel)))
+	SetLogLever(rgconfig.GetStr(rgconst.ConfigKeyLogLevel))
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
-	if logLevel == "debug" {
-		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
-	}
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	configLogDir := rgconfig.GetStr(rgconst.ConfigLogDir)
 	if configLogDir == "" {
 		logDir = filePathMerge(rgglobal.BasePath, "/storage/log/")
@@ -37,450 +98,122 @@ func Start() {
 			panic("日志文件创建失败|err" + err.Error())
 		}
 	}
-}
-
-type Client struct {
-	UniqId string
-	sync.Pool
-}
-
-var logDir string
-
-var levelSimpler = &zerolog.LevelSampler{
-	DebugSampler: &zerolog.BurstSampler{
+	sampler := &zerolog.BurstSampler{
 		Burst:       5000,
 		Period:      time.Second,
 		NextSampler: &zerolog.BasicSampler{N: 100},
-	},
+	}
+	logSampled := &zerolog.LevelSampler{
+		DebugSampler: sampler,
+		TraceSampler: sampler,
+		InfoSampler:  sampler,
+		WarnSampler:  sampler,
+		ErrorSampler: sampler,
+	}
+	fileOutput.Out = getFileOut()
+	fileLoggerClient = zerolog.New(fileOutput).Sample(logSampled).With().Timestamp().Stack().CallerWithSkipFrameCount(3).Logger()
+	localLoggerClient = zerolog.New(os.Stdout).Sample(logSampled).With().Timestamp().Stack().CallerWithSkipFrameCount(4).Logger()
+	backUpLog()
 }
 
-// New 获取一个新的对象
-// @Param   : uniqid string
-// @Return  : *Client
-// @Author  : LiJunDong
-// @Time    : 2022-06-03
 func New(uniqId string) *Client {
-	// TODO <LiJunDong : 2022-06-03 11:11:07> --- 使用pool避免频繁创建对象
 	return &Client{UniqId: uniqId}
 }
 
-/*
-* @Content : 日志记录
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-01
- */
 func (c *Client) Info(any ...interface{}) {
-	param := localDebug("Info", c.UniqId, any)
-	if e := log.Info(); e.Enabled() {
-		if param == "" {
-			param = reqToStr(any)
-		}
-		nowDate := time.Now().Format(rgconst.GoDateFormat)
-		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
-		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		defer func() {
-			_ = f.Close()
-		}()
-		if err != nil {
-			return
-		}
-		output := zerolog.ConsoleWriter{
-			Out:     f,
-			NoColor: true,
-			FormatTimestamp: func(i interface{}) string {
-				return time.Now().Local().Format(rgconst.GoTimeFormat)
-			},
-			FormatLevel: func(i interface{}) string {
-				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
-			},
-			FormatCaller: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-			FormatFieldName: func(i interface{}) string {
-				return fmt.Sprintf("%s:", i)
-			},
-			FormatFieldValue: func(i interface{}) string {
-				return fmt.Sprintf("%s", i)
-			},
-			FormatMessage: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-		}
-		logger := log.Sample(levelSimpler).Output(output).With().Caller().CallerWithSkipFrameCount(3).Logger()
-		logger.Info().Fields(map[string]interface{}{"UniqId": c.UniqId}).Msg(param)
+	param := localDebug(LevelInfo, c.UniqId, any)
+	if !log.Info().Enabled() {
+		return
 	}
+	if param == "" {
+		param = reqToStr(any)
+	}
+	fileLoggerClient.Info().Msg(c.UniqId + " | " + param)
 }
 
-/*
-* @Content :
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-09
- */
 func (c *Client) Error(any ...interface{}) {
-	param := localDebug("Error", c.UniqId, any)
-	if e := log.Error(); e.Enabled() {
-		if param == "" {
-			param = reqToStr(any)
-		}
-		nowDate := time.Now().Format(rgconst.GoDateFormat)
-		filePath := filePathMerge(logDir, "/"+nowDate, "_ERROR.log")
-		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		defer f.Close()
-		if err != nil {
-			return
-		}
-		output := zerolog.ConsoleWriter{
-			Out:     f,
-			NoColor: true,
-			FormatTimestamp: func(i interface{}) string {
-				return time.Now().Local().Format(rgconst.GoTimeFormat)
-			},
-			FormatLevel: func(i interface{}) string {
-				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
-			},
-			FormatCaller: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-			FormatFieldName: func(i interface{}) string {
-				return fmt.Sprintf("%s:", i)
-			},
-			FormatFieldValue: func(i interface{}) string {
-				return fmt.Sprintf("%s", i)
-			},
-			FormatMessage: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-		}
-		logger := log.Sample(levelSimpler).Output(output).With().Caller().CallerWithSkipFrameCount(3).Logger()
-		logger.Error().Fields(map[string]interface{}{"UniqId": c.UniqId}).Msg(param)
+	param := localDebug(LevelError, c.UniqId, any)
+	if !log.Error().Enabled() {
+		return
 	}
+	if param == "" {
+		param = reqToStr(any)
+	}
+	fileLoggerClient.Error().Err(errors.New(param)).Msg(c.UniqId)
 }
 
-/*
-* @Content :
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-09
- */
 func (c *Client) Debug(any ...interface{}) {
-	param := localDebug("Debug", c.UniqId, any)
-	if e := log.Debug(); e.Enabled() {
-		if param == "" {
-			param = reqToStr(any)
-		}
-		nowDate := time.Now().Format(rgconst.GoDateFormat)
-		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
-		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		defer f.Close()
-		if err != nil {
-			return
-		}
-		output := zerolog.ConsoleWriter{
-			Out:     f,
-			NoColor: true,
-			FormatTimestamp: func(i interface{}) string {
-				return time.Now().Local().Format(rgconst.GoTimeFormat)
-			},
-			FormatLevel: func(i interface{}) string {
-				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
-			},
-			FormatCaller: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-			FormatFieldName: func(i interface{}) string {
-				return fmt.Sprintf("%s:", i)
-			},
-			FormatFieldValue: func(i interface{}) string {
-				return fmt.Sprintf("%s", i)
-			},
-			FormatMessage: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-		}
-		logger := log.Sample(levelSimpler).Output(output).With().Caller().CallerWithSkipFrameCount(3).Logger()
-		logger.Debug().Fields(map[string]interface{}{"UniqId": c.UniqId}).Msg(param)
+	param := localDebug(LevelDebug, c.UniqId, any)
+	if !log.Debug().Enabled() {
+		return
 	}
+	if param == "" {
+		param = reqToStr(any)
+	}
+	fileLoggerClient.Debug().Msg(c.UniqId + " | " + param)
 }
 
-/*
-* @Content :
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-09
- */
 func (c *Client) Warn(any ...interface{}) {
-	param := localDebug("Warn", c.UniqId, any)
-	if e := log.Warn(); e.Enabled() {
-		if param == "" {
-			param = reqToStr(any)
-		}
-		nowDate := time.Now().Format(rgconst.GoDateFormat)
-		filePath := filePathMerge(logDir, "/"+nowDate, "_INFO.log")
-		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		defer f.Close()
-		if err != nil {
-			return
-		}
-		output := zerolog.ConsoleWriter{
-			Out:     f,
-			NoColor: true,
-			FormatTimestamp: func(i interface{}) string {
-				return time.Now().Local().Format(rgconst.GoTimeFormat)
-			},
-			FormatLevel: func(i interface{}) string {
-				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
-			},
-			FormatCaller: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-			FormatFieldName: func(i interface{}) string {
-				return fmt.Sprintf("%s:", i)
-			},
-			FormatFieldValue: func(i interface{}) string {
-				return fmt.Sprintf("%s", i)
-			},
-			FormatMessage: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-		}
-		logger := log.Sample(levelSimpler).Output(output).With().Caller().CallerWithSkipFrameCount(3).Logger()
-		logger.Warn().Fields(map[string]interface{}{"UniqId": c.UniqId}).Msg(param)
+	param := localDebug(LevelWarn, c.UniqId, any)
+	if !log.Warn().Enabled() {
+		return
 	}
-}
-
-/*
-* @Content :
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-09
- */
-func (c *Client) Fatal(any ...interface{}) {
-	param := localDebug("Fatal", c.UniqId, any)
-	if e := log.Fatal(); e.Enabled() {
-		if param == "" {
-			param = reqToStr(any)
-		}
-		nowDate := time.Now().Format(rgconst.GoDateFormat)
-		filePath := filePathMerge(logDir, "/"+nowDate, "_ERROR.log")
-		f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		defer f.Close()
-		if err != nil {
-			return
-		}
-		output := zerolog.ConsoleWriter{
-			Out:     f,
-			NoColor: true,
-			FormatTimestamp: func(i interface{}) string {
-				return time.Now().Local().Format(rgconst.GoTimeFormat)
-			},
-			FormatLevel: func(i interface{}) string {
-				return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
-			},
-			FormatCaller: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-			FormatFieldName: func(i interface{}) string {
-				return fmt.Sprintf("%s:", i)
-			},
-			FormatFieldValue: func(i interface{}) string {
-				return fmt.Sprintf("%s", i)
-			},
-			FormatMessage: func(i interface{}) string {
-				return fmt.Sprintf("%s|", i)
-			},
-		}
-		logger := log.Sample(levelSimpler).Output(output).With().Caller().CallerWithSkipFrameCount(3).Logger()
-		logger.Fatal().Fields(map[string]interface{}{"UniqId": c.UniqId}).Msg(param)
+	if param == "" {
+		param = reqToStr(any)
 	}
+	fileLoggerClient.Warn().Msg(c.UniqId + " | " + param)
 }
 
-/*
-* @Content : Print
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-09
- */
-func Print(param ...interface{}) {
-	log.Print(param...)
-}
-func Println(param ...interface{}) {
-	log.Print(param...)
-}
-
-/*
-* @Content : 获取日志级别
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-10
- */
-func SetLogLever(param string) (level zerolog.Level) {
-	level = zerolog.InfoLevel
-	logLevel = "info"
+func SetLogLever(param string) {
 	switch param {
 	case "debug":
-		level = zerolog.DebugLevel
-		logLevel = "debug"
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		logLevel = LevelDebug
 	case "info":
-		level = zerolog.InfoLevel
-		logLevel = "info"
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+		logLevel = LevelInfo
 	case "warn":
-		level = zerolog.WarnLevel
-		logLevel = "warn"
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+		logLevel = LevelWarn
 	case "error":
-		level = zerolog.ErrorLevel
-		logLevel = "error"
-	case "fatal":
-		level = zerolog.FatalLevel
-		logLevel = "fatal"
+		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+		logLevel = LevelError
 	case "no":
-		level = zerolog.TraceLevel
-		logLevel = "no"
+		zerolog.SetGlobalLevel(zerolog.TraceLevel)
+		logLevel = LevelNo
 	default:
-		level = zerolog.InfoLevel
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+		logLevel = LevelInfo
 	}
-	return level
+	return
 }
 
-func GetLogLevel() string {
-	return logLevel
-}
-
-/*
-* @Content : 系统级别日志
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-11
- */
 func SystemInfo(any ...interface{}) {
-	param := localDebug("SystemInfo", "system", any)
+	param := localDebug(LevelSystem, "SystemInfo", any)
 	if param == "" {
 		param = reqToStr(any)
 	}
-	nowDate := time.Now().Format(rgconst.GoDateFormat)
-	filePath := filePathMerge(logDir, "/"+nowDate, "_SYSTEM.log")
-	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	defer f.Close()
-	if err != nil {
-		return
-	}
-	output := zerolog.ConsoleWriter{
-		Out:     f,
-		NoColor: true,
-		FormatTimestamp: func(i interface{}) string {
-			return time.Now().Local().Format(rgconst.GoTimeFormat)
-		},
-		FormatLevel: func(i interface{}) string {
-			return "| SYSTEMINFO|"
-		},
-		FormatCaller: func(i interface{}) string {
-			return fmt.Sprintf("%s|", i)
-		},
-		FormatFieldName: func(i interface{}) string {
-			return fmt.Sprintf("%s:", i)
-		},
-		FormatFieldValue: func(i interface{}) string {
-			return fmt.Sprintf("%s", i)
-		},
-		FormatMessage: func(i interface{}) string {
-			return fmt.Sprintf("%s|", i)
-		},
-	}
-	logger := log.Sample(levelSimpler).Output(output).With().Caller().CallerWithSkipFrameCount(3).Logger()
-	logger.Log().Msg(param)
+	fileLoggerClient.WithLevel(102).Msg(param)
 }
 
-/*
-* @Content : 系统级别错误日志
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-11
- */
 func SystemError(any ...interface{}) {
-	param := localDebug("SystemError", "system", any)
+	param := localDebug(LevelSystem, "SystemError", any)
 	if param == "" {
 		param = reqToStr(any)
 	}
-	nowDate := time.Now().Format(rgconst.GoDateFormat)
-	filePath := filePathMerge(logDir, "/"+nowDate, "_SYSTEM.log")
-	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	defer f.Close()
-	if err != nil {
-		return
-	}
-	output := zerolog.ConsoleWriter{
-		Out:     f,
-		NoColor: true,
-		FormatTimestamp: func(i interface{}) string {
-			return time.Now().Local().Format(rgconst.GoTimeFormat)
-		},
-		FormatLevel: func(i interface{}) string {
-			return "| SYSTEMERROR|"
-		},
-		FormatCaller: func(i interface{}) string {
-			return fmt.Sprintf("%s|", i)
-		},
-		FormatFieldName: func(i interface{}) string {
-			return fmt.Sprintf("%s:", i)
-		},
-		FormatFieldValue: func(i interface{}) string {
-			return fmt.Sprintf("%s", i)
-		},
-		FormatMessage: func(i interface{}) string {
-			return fmt.Sprintf("%s|", i)
-		},
-	}
-	logger := log.Sample(levelSimpler).Output(output).With().Caller().CallerWithSkipFrameCount(3).Logger()
-	logger.Log().Msg(param)
+	fileLoggerClient.WithLevel(103).Msg(param)
 }
 
-/*
-* @Content : 请求日志
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-11
- */
-func RequestLog(uniqId string, typ string, param string) {
-	param = localDebug(typ, uniqId, []interface{}{param})
-	nowDate := time.Now().Format(rgconst.GoDateFormat)
-	filePath := filePathMerge(logDir, "/"+nowDate, "_REQUEST.log")
-	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	defer f.Close()
-	if err != nil {
-		return
+func RequestLog(uniqId string, typ LogLevel, any ...interface{}) {
+	param := localDebug(typ, uniqId, any)
+	if param == "" {
+		param = reqToStr(any)
 	}
-	output := zerolog.ConsoleWriter{
-		Out:     f,
-		NoColor: true,
-		FormatTimestamp: func(i interface{}) string {
-			return time.Now().Local().Format(rgconst.GoTimeFormat)
-		},
-		FormatLevel: func(i interface{}) string {
-			return fmt.Sprintf("|%s|", typ)
-		},
-		FormatFieldName: func(i interface{}) string {
-			return fmt.Sprintf("%s:", i)
-		},
-		FormatFieldValue: func(i interface{}) string {
-			return fmt.Sprintf("%s", i)
-		},
-		FormatMessage: func(i interface{}) string {
-			return fmt.Sprintf("%s|", i)
-		},
+	var requestLevel zerolog.Level = 100
+	if typ == LevelResponse {
+		requestLevel = 101
 	}
-	logger := log.Sample(levelSimpler).Output(output).With().Logger()
-	logger.Log().Fields(map[string]interface{}{"UniqId": uniqId}).Msg(param)
+	fileLoggerClient.WithLevel(requestLevel).Msg(uniqId + " | " + param)
 }
 
 func filePathMerge(param ...string) string {
@@ -493,41 +226,32 @@ func filePathMerge(param ...string) string {
 	return result
 }
 
-/*
-* @Content : 本地调试日志
-* @Param   :
-* @Return  : 日志内容
-* @Author  : LiJunDong
-* @Time    : 2022-03-28
- */
-func localDebug(typ string, uniqId string, any []interface{}) (logStr string) {
+func localDebug(typ LogLevel, uniqId string, any []interface{}) (logStr string) {
 	if !rgconfig.GetBool(rgconst.ConfigKeyDebug) {
 		return ""
 	}
 	param := reqToStr(any)
-	output := zerolog.ConsoleWriter{
-		Out:        os.Stdout,
-		TimeFormat: rgconst.GoTimeFormat,
-		NoColor:    true,
-		FormatTimestamp: func(i interface{}) string {
-			return time.Now().Local().Format(rgconst.GoTimeFormat)
-		},
-		FormatLevel: func(i interface{}) string {
-			return fmt.Sprintf("|%s|", typ)
-		},
-		FormatFieldName: func(i interface{}) string {
-			return fmt.Sprintf("%s:", i)
-		},
-		FormatFieldValue: func(i interface{}) string {
-			return fmt.Sprintf("%s", i)
-		},
-		FormatMessage: func(i interface{}) string {
-			return fmt.Sprintf("%s|", i)
-		},
+	switch typ {
+	case LevelDebug:
+		localLoggerClient.Debug().Msg(uniqId + " | " + param)
+	case LevelInfo:
+		localLoggerClient.Info().Msg(uniqId + " | " + param)
+	case LevelWarn:
+		localLoggerClient.Warn().Msg(uniqId + " | " + param)
+	case LevelError:
+		localLoggerClient.Error().Err(errors.New(param)).Msg(uniqId)
+	case LevelRequest:
+		localLoggerClient.WithLevel(100).Msg(uniqId + " | " + param)
+	case LevelResponse:
+		localLoggerClient.WithLevel(101).Msg(uniqId + " | " + param)
+	case LevelSystem:
+		var newLevel zerolog.Level = 102
+		if typ == "SystemInfo" {
+			newLevel = 103
+		}
+		localLoggerClient.WithLevel(newLevel).Msg(param)
 	}
-	logger := log.Sample(levelSimpler).Output(output).With().Logger()
-	logger.Log().Fields(map[string]interface{}{"UniqId": uniqId}).Msg(param)
-	return param
+	return
 }
 
 func interfaceToString(param interface{}) string {
@@ -585,4 +309,49 @@ func reqToStr(any []interface{}) (data string) {
 	}
 	data = strings.Join(paramArr, " | ")
 	return data
+}
+
+func GetLogLevel() string {
+	return string(logLevel)
+}
+
+func getFileOut() (f *os.File) {
+	f, err := os.OpenFile(logDir+"/"+rgenv.GetAppName()+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		fmt.Println("日志文件打开失败:", err)
+	}
+	return f
+}
+
+func backUpLog() {
+	backJob := cron.New()
+	spec := "@daily"
+	//spec := "@every 1m"
+	err := backJob.AddFunc(spec, func() {
+		copyCleanLogFile()
+	})
+	if err != nil {
+		fmt.Println("日志文件备份任务启动失败:", err)
+	}
+	backJob.Start()
+}
+
+func copyCleanLogFile() {
+	//filePath := logDir + "/" + rgenv.GetAppName() + ".log." + time.Now().Format("2006-01-02 15:04")
+	filePath := logDir + "/" + rgenv.GetAppName() + ".log." + rgtime.NowDate()
+	err := os.Rename(logDir+"/"+rgenv.GetAppName()+".log", filePath)
+	if err != nil {
+		fmt.Println("日志文件重命名失败:", err)
+	}
+	f, err := os.OpenFile(logDir+"/"+rgenv.GetAppName()+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		fmt.Println("日志文件打开失败:", err)
+	}
+	if fileOutput.Out != nil {
+		if of, ok := fileOutput.Out.(*os.File); ok {
+			_ = of.Close()
+		}
+	}
+	fileOutput.Out = f
+	fileLoggerClient = fileLoggerClient.Output(fileOutput)
 }
