@@ -12,7 +12,6 @@ const (
 	Name string = "apollo"
 )
 
-// ApolloConfig <LiJunDong : 2022-03-10 11:15:12> --- 配置结构
 type ApolloConfig struct {
 	AppId          string `json:"app_id"`
 	Cluster        string `json:"cluster"`
@@ -28,24 +27,10 @@ var configPool *storage.Config
  *
  */
 
-/*
- * @Content : init
- * @Param   :
- * @Return  :
- * @Author  : LiJunDong
- * @Time    : 2022-03-11
- */
 func Register() {
 	rgconfig.Register(Name, client{})
 }
 
-/*
-* @Content :
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-09
- */
 func (c client) getConfig() (config ApolloConfig) {
 	config = ApolloConfig{
 		AppId:          rgconfig.Config.ApolloAppId,
@@ -59,13 +44,6 @@ func (c client) getConfig() (config ApolloConfig) {
 	return config
 }
 
-/*
-* @Content : 具体加载方法
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-08
- */
 func (c client) load() (err error) {
 	apolloConfig := c.getConfig()
 	apolloC := &config.AppConfig{

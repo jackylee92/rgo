@@ -1,6 +1,8 @@
 package rgo
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func Welcome() {
 	fmt.Println("welcome to rgo!!")

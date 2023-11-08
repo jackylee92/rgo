@@ -20,35 +20,14 @@ var configSource = make(map[string]ConfigInterface)
 // 目前使用的配置
 var configPool ConfigInterface
 
-/*
-* @Content : register
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-11
- */
 func Register(name string, c ConfigInterface) {
 	configSource[name] = c
 }
 
-/*
-* @Content : 设置
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-09
- */
 func getFactoryClient(param string) ConfigInterface {
 	return configSource[param]
 }
 
-/*
-* @Content : 加载配置
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-03-01
- */
 func Start() {
 	loadBaseConfig()
 	configPool = getFactoryClient(Config.Config)
@@ -82,13 +61,6 @@ var (
 var configByte []byte
 var Config BaseConfig
 
-/*
-* @Content : 获取配置文件字节
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-05-04
- */
 func loadBaseConfig() {
 	// <LiJunDong : 2022-05-12 22:46:19> --- 适配args为config需要的格式
 	//oldArgs := parse()
@@ -119,13 +91,6 @@ func loadBaseConfig() {
 	return
 }
 
-/*
-* @Content : 获取配置byte字节
-* @Param   :
-* @Return  :
-* @Author  : LiJunDong
-* @Time    : 2022-05-11
- */
 func ReadFile() []byte {
 	return configByte
 }
