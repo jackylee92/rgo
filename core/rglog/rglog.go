@@ -48,8 +48,6 @@ var (
 )
 
 var fileOutput = zerolog.ConsoleWriter{
-	//Out:     getFileOut(),
-	NoColor: false,
 	FormatTimestamp: func(i interface{}) string {
 		return time.Now().Local().Format(rgconst.GoTimeFormat)
 	},
@@ -242,7 +240,6 @@ func localDebug(typ LogLevel, uniqId string, any []interface{}) (logStr string) 
 		localLoggerClient.Warn().Msg(uniqId + " | " + param)
 	case LevelError:
 		localLoggerClient.Error().Err(errors.New(param)).Msg(uniqId)
-		return
 	case LevelRequest:
 		localLoggerClient.WithLevel(100).Msg(uniqId + " | " + param)
 	case LevelResponse:
