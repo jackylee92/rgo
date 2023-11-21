@@ -127,7 +127,7 @@ if err != nil {
 操作
 
 ```go
- 92 func (c *Coupon) Update(param mysql.SearchParam, data map[string]interface{}) (err error) {
+ 92 func (c *User) Update(param mysql.SearchParam, data map[string]interface{}) (err error) {
  93     model, err := param.This.Mysql.New("db_name")
  95     if err != nil {
  96         return err
@@ -136,7 +136,7 @@ if err != nil {
  99     return model.Db.Table(c.TableName()).Where(param.Query, param.Args...).Updates(data).Error
 100 }
 101
-102 func (c *Coupon) Find(param mysql.SearchParam) (err error) {
+102 func (c *User) Find(param mysql.SearchParam) (err error) {
 103     model, err := param.This.Mysql.New("db_name")
 104     if err != nil {
 105         return err
