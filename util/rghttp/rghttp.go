@@ -83,14 +83,14 @@ func (i *Client) getClient() (client *http.Client, err error) {
  * @Time    : 2020/7/22
  */
 func (i *Client) getClientHeader() (req *http.Request, err error) {
-	if i.Method == "POST" {
+	if i.Method == http.MethodPost {
 		switch i.Param.(type) {
 		case []byte:
 			if value, ok := i.Param.([]byte); ok {
 				param := bytes.NewBuffer(value)
 				req, err = http.NewRequest(i.Method, i.Url, param)
 			} else {
-				return req, errors.New("请求参数异常")
+				return req, errors.New("请求参数异常|" + string(i.Param.([]byte)))
 			}
 		case string:
 			newValue1, ok := i.Param.(string)

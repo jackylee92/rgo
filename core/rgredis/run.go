@@ -2,8 +2,8 @@ package rgredis
 
 import (
 	"errors"
-	"github.com/go-redis/redis"
 	"github.com/jackylee92/rgo/core/rglog"
+	"github.com/redis/go-redis/v9"
 	"strings"
 	"sync"
 	"time"
