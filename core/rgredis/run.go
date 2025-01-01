@@ -1,6 +1,7 @@
 package rgredis
 
 import (
+	"context"
 	"errors"
 	"github.com/jackylee92/rgo/core/rglog"
 	"github.com/redis/go-redis/v9"
@@ -44,7 +45,7 @@ func Start(cfg Config) (key string, err error) {
 		ReadTimeout:  time.Duration(cfg.TimeOut) * time.Second,
 		WriteTimeout: time.Duration(cfg.TimeOut) * time.Second,
 	})
-	if err = client.Ping().Err(); err != nil {
+	if err = client.Ping(context.Background()).Err(); err != nil {
 		panic("redis链接失败|" + cfg.Addr)
 	}
 	rglog.SystemInfo("启动项【redis】" + cfg.Addr + ":成功")
