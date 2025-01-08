@@ -63,5 +63,6 @@ var This *rgrequest.Client
 // @Time    : 2022-06-21
 func serverContainer() {
 	ctx := &gin.Context{}
+	ctx.Set(rgconst.ContextUniqIDKey, "Init")
 	This = rgrequest.Get(ctx)
 }
