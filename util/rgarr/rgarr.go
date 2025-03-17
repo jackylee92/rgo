@@ -198,7 +198,7 @@ func SliceStrToInt64(param []string) (data []int64) {
 }
 
 func SliceToMap[T int | int64 | string](param []T) (data map[T]struct{}) {
-	data = make(map[T]struct{})
+	data = make(map[T]struct{}, len(param))
 	for _, item := range param {
 		data[item] = struct{}{}
 	}

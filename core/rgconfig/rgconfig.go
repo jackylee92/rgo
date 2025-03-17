@@ -15,7 +15,7 @@ import (
  */
 
 // <LiJunDong : 2022-03-10 14:33:29> --- 配置集合
-var configSource = make(map[string]ConfigInterface)
+var configSource = make(map[string]ConfigInterface, 50)
 
 // 目前使用的配置
 var configPool ConfigInterface

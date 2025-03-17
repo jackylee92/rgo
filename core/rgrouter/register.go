@@ -37,8 +37,8 @@ type MessageTrans struct {
 * @Time    : 2022-03-29
  */
 func init() {
-	registerFuncMap = make(map[string]func(validator.FieldLevel) bool, 0)
-	registerMessageMap = make(map[string]MessageTrans, 0)
+	registerFuncMap = make(map[string]func(validator.FieldLevel) bool, 30)
+	registerMessageMap = make(map[string]MessageTrans, 30)
 }
 
 // <LiJunDong : 2022-03-29 17:57:53> --- 注册语言包
