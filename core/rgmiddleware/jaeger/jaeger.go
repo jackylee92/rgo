@@ -96,7 +96,7 @@ func Handle() gin.HandlerFunc {
 func getRequestParam(c *gin.Context) string {
 	var paramForm, paramJson string
 	_ = c.Request.ParseForm()
-	paramFormArr := make(map[string]interface{})
+	paramFormArr := make(map[string]interface{}, len(c.Request.PostForm)+5)
 	for k, v := range c.Request.PostForm {
 		paramFormArr[k] = v
 	}

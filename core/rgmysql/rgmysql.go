@@ -96,7 +96,7 @@ func connect() {
 		TimestampFormat: rgconst.GoTimeFormat,
 	}
 	logformat.SetFormatter(formatter)
-	connectPool = make(map[string]*gorm.DB)
+	connectPool = make(map[string]*gorm.DB, 5)
 	connectNames := make([]string, 0, len(dsnList))
 	for name, dsn := range dsnList {
 		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: logger})
