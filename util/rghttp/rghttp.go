@@ -163,7 +163,7 @@ func (i *Client) GetApi() (data string, err error) {
 	if i.This == nil {
 		i.This = rgo.This
 	}
-	i.addUniqId()
+	//i.addUniqId()
 	if i.Timeout == 0 {
 		i.Timeout = defaultTimeOut
 	}
